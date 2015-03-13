@@ -116,6 +116,7 @@ vtkSmartPointer<vtkImageData> ComputeDistMap::computeOuterDist()
     FloatImageType::Pointer AliveImage = FloatImageType::New();
     AliveImage->SetLargestPossibleRegion( region );
     AliveImage->SetBufferedRegion( region );
+    AliveImage->SetSpacing(output_spacing);
     AliveImage->Allocate();
     AliveImage->FillBuffer( 0.0 );
     //FloatImageType::IndexType index;
@@ -132,6 +133,7 @@ vtkSmartPointer<vtkImageData> ComputeDistMap::computeOuterDist()
     FloatImageType::Pointer TrialImage = FloatImageType::New();
     TrialImage->SetLargestPossibleRegion( region );
     TrialImage->SetBufferedRegion( region );
+    TrialImage->SetSpacing(output_spacing);
     TrialImage->Allocate();
     TrialImage->FillBuffer( 0.0 );
     setTrialImg(TrialImage, AliveImage);
@@ -171,6 +173,7 @@ vtkSmartPointer<vtkImageData> ComputeDistMap::computeInnerDist()
     FloatImageType::Pointer AliveImage = FloatImageType::New();
     AliveImage->SetLargestPossibleRegion( region );
     AliveImage->SetBufferedRegion( region );
+    AliveImage->SetSpacing(output_spacing);
     AliveImage->Allocate();
     AliveImage->FillBuffer( 1.0 );
     setActiveImg(AliveImage, false);
@@ -178,6 +181,7 @@ vtkSmartPointer<vtkImageData> ComputeDistMap::computeInnerDist()
     FloatImageType::Pointer TrialImage = FloatImageType::New();
     TrialImage->SetLargestPossibleRegion( region );
     TrialImage->SetBufferedRegion( region );
+    TrialImage->SetSpacing(output_spacing);
     TrialImage->Allocate();
     TrialImage->FillBuffer( 0.0 );
     setTrialImg(TrialImage, AliveImage);
@@ -246,12 +250,6 @@ void ComputeDistMap::computeFinalDistMap()
     std::cout<<"compute final dist map finished. Elapsed time: "<<double(end-begin)/CLOCKS_PER_SEC<<"\n";
     dist_map = vtkSmartPointer<vtkImageData>::New();
     dist_map->DeepCopy(outside);
-
-    //vtkSmartPointer<vtkXMLImageDataWriter> writer = vtkSmartPointer<vtkXMLImageDataWriter>::New();
-    //writer->SetFileName("distmap");
-    //writer->SetInputData(dist_map);
-    //writer->Write();
-
 }
 
 void ComputeDistMap::setVTKImg(vtkSmartPointer< vtkImageData> img_data, double mid_interval, double wid_interval)
@@ -428,4 +426,57 @@ void ComputeDistMap::setTrialImg(FloatImageType::Pointer trial_ptr, FloatImageTy
     }
     std::clock_t end = std::clock();
     std::cout<<"filling finished. Elapsed time: "<<double(end-begin)/CLOCKS_PER_SEC<<"\n";
+}
+
+void ComputeDistMap::gaussianSmooth(vtkSmartPointer<vtkImageData> img)
+{
+    typedef itk::DiscreteGaussianImageFilter< FloatImageType, ShortImageType > GaussianFilterType;
+
+    FloatImageType::Pointer AliveImage = FloatImageType::New();
+    AliveImage->SetLargestPossibleRegion( region );
+    AliveImage->SetBufferedRegion( region );
+    AliveImage->Allocate();
+    AliveImage->FillBuffer( 0.0 );
+    AliveImage->SetSpacing(output_spacing);
+
+    std::cout<<"fill itk image for gaussian filter\n";
+    std::clock_t begin = clock();
+    FloatImageType::IndexType index;
+    for (size_t k = 0; k < size[2]; ++k)
+    {
+        for (size_t j = 0; j < size[1]; ++j)
+        {
+            for(size_t i = 0; i < size[0]; ++i)
+            {
+                index[2] = k;
+                index[1] = j;
+                index[0] = i;
+
+                short cur_val = static_cast<short *>(img->GetScalarPointer(i, j, k))[0];
+                if(cur_val <= max_interval && cur_val >= min_interval)
+                {
+                        AliveImage->SetPixel(index, 500);
+                }
+            }
+        }
+    }
+
+    std::clock_t end = clock();
+
+    std::cout<<"filling finished. Elapsed time: "<<double(end-begin)/CLOCKS_PER_SEC<<"\n";
+
+    GaussianFilterType::Pointer gaussian_filter = GaussianFilterType::New();
+    gaussian_filter->SetInput(AliveImage);
+    gaussian_filter->SetVariance(1.0);
+    gaussian_filter->SetUseImageSpacingOn();
+    gaussian_filter->Update();
+
+    ShortConnectorType::Pointer connector = ShortConnectorType::New();
+    connector->SetInput(gaussian_filter->GetOutput());
+    connector->Update();
+    bone_img = vtkSmartPointer<vtkImageData>::New();
+    bone_img->DeepCopy(connector->GetOutput());
+
+    min_interval = 1.0;
+    computeFinalDistMap();
 }

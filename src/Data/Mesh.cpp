@@ -114,11 +114,3 @@ void Mesh::setMeshCenter(double new_center[3])
     //mesh_center[1] = new_center[1];
     //mesh_center[2] = new_center[2];
 }
-
-void Mesh::saveMesh(std::string f_name)
-{
-    vtkSmartPointer<vtkOBJWriter> writer = vtkSmartPointer<vtkOBJWriter>::New();
-    writer->SetInputData(mapper->GetInput());
-    writer->SetFileName(f_name.c_str());
-    writer->Update();
-}

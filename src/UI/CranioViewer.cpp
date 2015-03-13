@@ -27,6 +27,7 @@ CranioViewer::CranioViewer()
     connect( m_LoadTemplateMesh, SIGNAL( triggered() ), this, SLOT( loadMesh() ) );
     connect( actionTestITK, SIGNAL( triggered() ), this, SLOT( testITK() ) );
     connect( actionSaveMesh, SIGNAL( triggered() ), this, SLOT( saveMesh() ) );
+    connect( actionSaveImg, SIGNAL( triggered() ), this, SLOT( saveImg() ) );
 
     connect( m_PushButtonICP, SIGNAL( clicked() ), this, SLOT( runICP() ) );
     connect( m_PushButtonNonRigidIter, SIGNAL( clicked() ), this, SLOT( nonRigidIter() ) );
@@ -294,7 +295,8 @@ void CranioViewer::testITK()
 {
     ComputeDistMap distmap;
     distmap.setVTKImg(main_viewer->getImgData()->getData(), main_viewer->getVolumeData()->getISOVal(), main_viewer->getVolumeData()->getISOWidth());
-    distmap.computeFinalDistMap();
+    //distmap.computeFinalDistMap();
+    distmap.gaussianSmooth(main_viewer->getImgData()->getData());
 
     main_viewer->clearImage();
     for (size_t i = 0; i < 3; ++i)
@@ -313,6 +315,8 @@ void CranioViewer::testITK()
     for (size_t i = 0; i < 3; ++i)
     {
         image_slice_widgets[i]->setSlice(distmap.getDistMap(), orients[i], plane_renderers[i]);
+        image_slice_widgets[i]->setSliceColorWin(10.0);
+        image_slice_widgets[i]->setSliceColorLev(0.0);
     }
 
     if (main_viewer->getMeshData())
@@ -352,23 +356,15 @@ void CranioViewer::resetTrans()
 
 void CranioViewer::nonRigidIter()
 {
-    std::cout<<"Input number of iterations:\n";
-    size_t n_iter = 100;
-    std::cin>>n_iter;
+    size_t n_iter = spinBoxOutIter->value();
 
-    std::cout<<"Input number of gradient iterations:\n";
-    int n_grad_iter = 25;
-    std::cin>>n_grad_iter;
+    int n_grad_iter = spinBoxOutIter->value();
     non_rigid->getNonRigid()->setGradMaxIter(n_grad_iter);
 
-    std::cout<<"Input lamd arap:\n";
-    double lamd_arap = 10;
-    std::cin>>n_iter;
+    double lamd_arap = doubleSpinBoxLamdArap->value();
     non_rigid->getNonRigid()->setLamdArap(lamd_arap);
 
-    std::cout<<"Input gradient step:\n";
-    double grad_step = 0.01;
-    std::cin>>n_iter;
+    double grad_step = doubleSpinBoxGradStep->value();
     non_rigid->getNonRigid()->setGradStep(grad_step);
 
 
@@ -439,5 +435,10 @@ void CranioViewer::loadOutDistMap()
 
 void CranioViewer::saveMesh()
 {
-    main_viewer->getMeshData()->saveMesh("output.obj");
+    main_viewer->saveMesh("output.obj");
+}
+
+void CranioViewer::saveImg()
+{
+    main_viewer->saveImg("output.vti");
 }

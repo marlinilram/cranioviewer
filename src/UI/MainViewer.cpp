@@ -221,3 +221,19 @@ void MainViewer::updateVolumeView()
         emit(updateRenderers());
     }
 }
+
+void MainViewer::saveMesh(std::string f_name)
+{
+    vtkSmartPointer<vtkOBJWriter> writer = vtkSmartPointer<vtkOBJWriter>::New();
+    writer->SetInputData(temp_mesh->getMeshData());
+    writer->SetFileName(f_name.c_str());
+    writer->Update();
+}
+
+void MainViewer::saveImg(std::string f_name)
+{
+    vtkSmartPointer<vtkXMLImageDataWriter> writer = vtkSmartPointer<vtkXMLImageDataWriter>::New();
+    writer->SetFileName(f_name.c_str());
+    writer->SetInputData(image_slices[0]->getSliceMapper()->GetInput());
+    writer->Write();
+}

@@ -6,6 +6,7 @@
 #include "itkFastMarchingThresholdStoppingCriterion.h"
 #include "itkImageFileWriter.h"
 #include "itkImageToVTKImageFilter.h"
+#include "itkDiscreteGaussianImageFilter.h"
 
 #include <vtkImageActor.h>
 #include <vtkImageViewer.h>
@@ -26,6 +27,7 @@ class ComputeDistMap
     typedef float PixelType;
     static const unsigned int Dimension = 3;
     typedef itk::Image< PixelType, Dimension > FloatImageType;
+    typedef itk::Image< short, Dimension > ShortImageType;
     typedef itk::FastMarchingThresholdStoppingCriterion< FloatImageType, FloatImageType > CriterionType;
     typedef itk::FastMarchingImageFilterBase< FloatImageType, FloatImageType > FastMarchingType;
 
@@ -34,6 +36,7 @@ class ComputeDistMap
     typedef FastMarchingType::NodePairContainerType NodePairContainerType;
 
     typedef itk::ImageToVTKImageFilter<FloatImageType> ConnectorType;
+    typedef itk::ImageToVTKImageFilter<ShortImageType> ShortConnectorType;
     typedef itk::FastMarchingImageToNodePairContainerAdaptor< FloatImageType, FloatImageType, FloatImageType > AdaptorType;
 public:
     ComputeDistMap();
@@ -47,6 +50,7 @@ public:
     void setActiveImg(FloatImageType::Pointer active_ptr, bool out_tag = true);
     void setTrialImg(FloatImageType::Pointer trial_ptr, FloatImageType::Pointer active_ptr);
     vtkSmartPointer<vtkImageData> getDistMap() { return dist_map; };
+    void gaussianSmooth(vtkSmartPointer<vtkImageData> img);
 
 private:
     CriterionType::Pointer criterion;

@@ -3,9 +3,12 @@
 
 #include <QObject>
 #include <QSlider>
+#include <vtkXMLImageDataWriter.h>
+#include "vtkOBJWriter.h"
 #include "ImageSlice.h"
 #include "Mesh.h"
 #include "Volume.h"
+
 
 class MainViewer : public QObject
 {
@@ -28,6 +31,8 @@ public:
     void clearImage();
     void clearData();
     void clearMesh();
+    void saveMesh(std::string f_name);
+    void saveImg(std::string f_name);
 
     void updateVolumeView();
 

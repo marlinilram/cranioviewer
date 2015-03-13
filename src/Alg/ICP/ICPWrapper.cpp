@@ -95,7 +95,7 @@ void ICPWrapper::runICP()
 
         double last_error = std::numeric_limits<double>::max();
         double cur_error = -1;
-        int max_iter = 300;
+        int max_iter = 100;
         double min_delta = 1e-3;
 
         Matrix R = Matrix::eye(3);

@@ -12,8 +12,6 @@
 #include <string>
 #include <ctime>
 
-#include "vtkOBJWriter.h"
-
 class Mesh
 {
 public:
@@ -31,7 +29,6 @@ public:
     void resetMesh(vtkSmartPointer<vtkPolyData> new_mesh_data);
     double *getMeshCenter() { return mesh_center; };
     void setMeshCenter(double new_center[3] = nullptr);
-    void saveMesh(std::string f_name);
 
 private:
     void computeCenter(double bounds[6]);

@@ -47,6 +47,7 @@ private slots:
     void nonRigidIter();
     void loadOutDistMap();
     void saveMesh();
+    void saveImg();
 
 private:
     vtkSmartPointer<vtkRenderer> m_3DViewerRenderer;
