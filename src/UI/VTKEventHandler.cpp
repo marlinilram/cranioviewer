@@ -136,10 +136,10 @@ void VTKEventHandler::setUserCrsp(vtkObject *obj)
             }
             else if (key == "2")
             {
-                std::cout<<"crsp pos: "<<coord[0]<<"\t"<<coord[1]<<"\t"<<coord[2]<<"\tCurrent Crsps: "<<crsp_pos.size()/3<<"\n";
                 crsp_pos.push_back(coord[0]);
                 crsp_pos.push_back(coord[1]);
                 crsp_pos.push_back(coord[2]);
+                std::cout<<"crsp pos: "<<coord[0]<<"\t"<<coord[1]<<"\t"<<coord[2]<<"\tCurrent Crsps: "<<crsp_pos.size()/3<<"\n";
             }
         }
     }

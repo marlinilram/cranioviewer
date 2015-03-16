@@ -133,6 +133,7 @@ double NonRigid::computeGradEnergy(VectorXf &p_vec, VectorXf &g_vec)
     computeUserCrsp(p_vec, userCrsp_g);
 
     g_vec = dist_g + lamd_arap*arap_g + lamd_userCrsp*userCrsp_g;
+    g_vec.normalize();
     return f_e;
 }
 

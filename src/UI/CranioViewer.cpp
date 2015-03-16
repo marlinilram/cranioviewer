@@ -377,6 +377,8 @@ void CranioViewer::nonRigidIter()
     non_rigid->getNonRigid()->optStep();
     updateRenderers();
     }
+
+    //QPixmap::grabWidget(this).save("screen", "PNG");
 }
 
 void CranioViewer::loadOutDistMap()
