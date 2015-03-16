@@ -23,6 +23,7 @@ public:
     void clearSlice();
     void clearIntersector();
     ImageSlice *getImageSlice() { return image_slice; };
+    Intersector *getIntersector() { return intersector; };
     void setSliceLUT(double range[2]);
 
 public slots:

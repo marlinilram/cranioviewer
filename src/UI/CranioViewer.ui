@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1336</width>
-    <height>976</height>
+    <width>1451</width>
+    <height>1067</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,9 +20,9 @@
    <property name="layoutDirection">
     <enum>Qt::LeftToRight</enum>
    </property>
-   <layout class="QGridLayout" name="gridLayout" columnstretch="1,1">
+   <layout class="QGridLayout" name="gridLayout" rowstretch="0" columnstretch="1,1">
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0">
+     <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,1">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_YZ">
         <item>
@@ -46,19 +46,23 @@
      </layout>
     </item>
     <item row="0" column="1">
-     <layout class="QVBoxLayout" name="verticalLayout_XZ">
+     <layout class="QVBoxLayout" name="verticalLayout_8" stretch="1,1">
       <item>
-       <widget class="QVTKWidget" name="m_XZViewer"/>
-      </item>
-      <item>
-       <widget class="QSlider" name="m_XZSlider">
-        <property name="value">
-         <number>49</number>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
+       <layout class="QVBoxLayout" name="verticalLayout_XZ">
+        <item>
+         <widget class="QVTKWidget" name="m_XZViewer"/>
+        </item>
+        <item>
+         <widget class="QSlider" name="m_XZSlider">
+          <property name="value">
+           <number>49</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_XY">
@@ -87,7 +91,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1336</width>
+     <width>1451</width>
      <height>31</height>
     </rect>
    </property>
@@ -620,28 +624,7 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QPushButton" name="m_PushButtonNonRigid">
-          <property name="text">
-           <string>Non Rigid</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QPushButton" name="m_PushButtonNonRigidIter">
-          <property name="text">
-           <string>Non Rigit Iter</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QPushButton" name="m_PushButtonAddCrsp">
-          <property name="text">
-           <string>Manually Set Correspondences</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
+        <item row="5" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_10">
           <item>
            <widget class="QSpinBox" name="spinBoxOutIter">
@@ -658,13 +641,6 @@
            </widget>
           </item>
           <item>
-           <widget class="QDoubleSpinBox" name="doubleSpinBoxLamdArap">
-            <property name="value">
-             <double>10.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QDoubleSpinBox" name="doubleSpinBoxGradStep">
             <property name="value">
              <double>0.010000000000000</double>
@@ -673,19 +649,40 @@
           </item>
          </layout>
         </item>
-        <item row="5" column="0">
+        <item row="3" column="0">
+         <widget class="QPushButton" name="m_PushButtonAddCrsp">
+          <property name="text">
+           <string>Manually Set Correspondences</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QPushButton" name="m_PushButtonNonRigid">
+          <property name="text">
+           <string>Non Rigid</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QPushButton" name="m_PushButtonNonRigidIter">
+          <property name="text">
+           <string>Non Rigit Iter</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_8">
           <item>
-           <widget class="QCheckBox" name="checkBox_2">
-            <property name="text">
-             <string>Show Source</string>
+           <widget class="QDoubleSpinBox" name="doubleSpinBoxLamdArap">
+            <property name="value">
+             <double>10.000000000000000</double>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="checkBox">
-            <property name="text">
-             <string>Show Target</string>
+           <widget class="QDoubleSpinBox" name="doubleSpinBoxLamdUserCrsp">
+            <property name="value">
+             <double>25.000000000000000</double>
             </property>
            </widget>
           </item>

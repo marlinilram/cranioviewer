@@ -145,9 +145,11 @@ double ImageSlice::getPixelVal(double x, double y)
 
     // X 0 Y 1 Z 2
     int img_coord[3] = {0,0,0};
+    int img_extent[6] = {0,0,0,0,0,0};
     int orient = mapper->GetOrientation();
     double img_spcing[3];
     nii_data->GetSpacing(img_spcing);
+    nii_data->GetExtent(img_extent);
     if (orient == 0)
     {
         img_coord[0] = mapper->GetSliceNumber();
@@ -170,7 +172,14 @@ double ImageSlice::getPixelVal(double x, double y)
     std::string data_type(nii_data->GetScalarTypeAsString());
     std::cout<<"image data type: "<<data_type<<"\n";
 #endif
-    return nii_data->GetScalarComponentAsDouble(img_coord[0], img_coord[1], img_coord[2], 0);
+    if (img_coord[0] >= img_extent[0] && img_coord[0] <= img_extent[1] 
+    && img_coord[1] >= img_extent[2] && img_coord[1] <= img_extent[3]
+    && img_coord[2] >= img_extent[4] && img_coord[2] <= img_extent[5])
+    {
+            return nii_data->GetScalarComponentAsDouble(img_coord[0], img_coord[1], img_coord[2], 0);
+    }
+    
+    return 0.0;
 }
 
 void ImageSlice::setImgColorWin(double win)

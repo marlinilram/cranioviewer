@@ -34,16 +34,22 @@ public:
     void setLamdArap(double lamd) { lamd_arap = lamd; };
     void setGradStep(double lamd) { grad_step = lamd; };
     void setGradMaxIter(int num) { grad_max_iter = num; };
+    void setUserCrsp(std::vector<int> &v_ids, std::vector<double> &crsp_pts);
+    void setLamdUserCrsp(double lamd) { lamd_userCrsp = lamd; };
+    void computeUserCrsp(VectorXf &p_vec, VectorXf &g_vec);
 
 
 protected:
     MatrixX3f d_cur;
+    MatrixX3f user_crsp;
+    std::vector<int> user_v_ids;
     vtkSmartPointer<vtkImageData> dist_map;
     vtkSmartPointer<vtkImageData> dist_gradient;
     std::vector<double> temp_mesh_vec;
 
     double lamd_arap;
     double grad_step;
+    double lamd_userCrsp;
     int grad_max_iter;
 
     Mesh *mesh_data;

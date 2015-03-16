@@ -9,6 +9,9 @@
 #include <vtkSmartPointer.h>
 #include <vtkTransform.h>
 #include <vtkCenterOfMass.h>
+#include <vtkKdTreePointLocator.h>
+#include <vtkSphereSource.h>
+#include <vtkProperty.h>
 #include <string>
 #include <ctime>
 
@@ -29,6 +32,8 @@ public:
     void resetMesh(vtkSmartPointer<vtkPolyData> new_mesh_data);
     double *getMeshCenter() { return mesh_center; };
     void setMeshCenter(double new_center[3] = nullptr);
+    void setKDTreeLocator();
+    int getClosestPtID(double world_coord[3]);
 
 private:
     void computeCenter(double bounds[6]);
@@ -39,6 +44,8 @@ private:
     vtkSmartPointer<vtkRenderer> renderer;
     vtkSmartPointer<vtkTransform> widget_transform;
     vtkSmartPointer<vtkMatrix4x4> widget_transform_mat;
+
+    vtkSmartPointer<vtkKdTreePointLocator> kdtree_picker;
 
     double mesh_center[3];
 };

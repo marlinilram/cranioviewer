@@ -340,6 +340,9 @@ void CranioViewer::setVTKEventHandler()
     event_handler->setQVtkWidgets(qvtk_widgets);
     event_handler->setStatusBar(m_StatusBar);
     event_handler->setImageSliceWidgets(image_slice_widgets);
+    event_handler->setMainViewer(main_viewer);
+
+    connect( m_PushButtonAddCrsp, SIGNAL( clicked() ), event_handler, SLOT( initUserCrsp() ) );
 }
 
 void CranioViewer::resetTrans()
@@ -358,14 +361,15 @@ void CranioViewer::nonRigidIter()
 {
     size_t n_iter = spinBoxOutIter->value();
 
-    int n_grad_iter = spinBoxOutIter->value();
-    non_rigid->getNonRigid()->setGradMaxIter(n_grad_iter);
+    non_rigid->getNonRigid()->setGradMaxIter(spinBoxOutIter->value());
 
-    double lamd_arap = doubleSpinBoxLamdArap->value();
-    non_rigid->getNonRigid()->setLamdArap(lamd_arap);
+    non_rigid->getNonRigid()->setLamdArap(doubleSpinBoxLamdArap->value());
 
-    double grad_step = doubleSpinBoxGradStep->value();
-    non_rigid->getNonRigid()->setGradStep(grad_step);
+    non_rigid->getNonRigid()->setGradStep(doubleSpinBoxGradStep->value());
+
+    non_rigid->getNonRigid()->setLamdUserCrsp(doubleSpinBoxLamdUserCrsp->value());
+
+    non_rigid->getNonRigid()->setUserCrsp(event_handler->getPickedIds(), event_handler->getCrspPos());
 
 
     for (size_t i = 0; i < n_iter; ++i)

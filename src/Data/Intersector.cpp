@@ -61,3 +61,42 @@ void Intersector::setCutter()
 
     renderer->AddActor(actor);
 }
+
+void Intersector::getWorldCoord(double x, double y, double coord[3])
+{
+    // x y is actor coord
+    vtkSmartPointer<vtkWorldPointPicker> picker = vtkSmartPointer<vtkWorldPointPicker>::New();
+    picker->AddPickList(actor);
+    picker->PickFromListOn();
+    picker->Pick(x, y, 0.0, renderer);
+    
+
+    double pos[3];
+    picker->GetPickPosition(pos);
+    //std::cout<<"picked position: "<<pos[0]<<"\t"<<pos[1]<<"\t"<<pos[2]<<"\n";
+
+    if (coord)
+    {
+        coord[0] = pos[0];
+        coord[1] = pos[1];
+        coord[2] = pos[2];
+    }
+
+    ////Create a sphere
+    //vtkSmartPointer<vtkSphereSource> sphereSource =
+    //    vtkSmartPointer<vtkSphereSource>::New();
+    //sphereSource->SetCenter(pos[0], pos[1], pos[2]);
+    //sphereSource->SetRadius(1.0);
+
+    ////Create a mapper and actor
+    //vtkSmartPointer<vtkPolyDataMapper> pick_mapper =
+    //    vtkSmartPointer<vtkPolyDataMapper>::New();
+    //pick_mapper->SetInputConnection(sphereSource->GetOutputPort());
+
+    //vtkSmartPointer<vtkActor> pick_actor =
+    //    vtkSmartPointer<vtkActor>::New();
+    //pick_actor->SetMapper(pick_mapper);
+    //pick_actor->GetProperty()->SetDiffuseColor(0.0, 1.0, 1.0);
+
+    //renderer->AddActor(pick_actor);
+}

@@ -124,12 +124,15 @@ double NonRigid::computeGradEnergy(VectorXf &p_vec, VectorXf &g_vec)
 {
     VectorXf arap_g = g_vec;
     VectorXf dist_g = g_vec;
+    VectorXf userCrsp_g = g_vec;
     double f_e = 0;
     computeArap(p_vec, arap_g);
 
     f_e += computeDistEnergy(p_vec, dist_g);
 
-    g_vec = dist_g + lamd_arap*arap_g;
+    computeUserCrsp(p_vec, userCrsp_g);
+
+    g_vec = dist_g + lamd_arap*arap_g + lamd_userCrsp*userCrsp_g;
     return f_e;
 }
 
@@ -353,4 +356,30 @@ void NonRigid::initOpt()
     //    //f_debug<<L<<"\n";
     //    f_debug.close();
     //}
+}
+
+void NonRigid::setUserCrsp(std::vector<int> &v_ids, std::vector<double> &crsp_pts)
+{
+    user_crsp = MatrixX3f::Zero(adj_list.size(), 3);
+    user_v_ids = v_ids;
+
+    for (size_t i = 0; i < v_ids.size(); ++i)
+    {
+        user_crsp.row(v_ids[i]) = RowVector3f(crsp_pts[3*i+0], crsp_pts[3*i+1], crsp_pts[3*i+2]);
+    }
+}
+
+void NonRigid::computeUserCrsp(VectorXf &p_vec, VectorXf &g_vec)
+{
+    size_t P_Num = adj_list.size();
+    g_vec = VectorXf::Zero(3*P_Num);
+
+    for (size_t i = 0; i < user_v_ids.size(); ++i)
+    {
+        g_vec(user_v_ids[i] + 0*P_Num) = p_vec(user_v_ids[i] + 0*P_Num);
+        g_vec(user_v_ids[i] + 1*P_Num) = p_vec(user_v_ids[i] + 1*P_Num);
+        g_vec(user_v_ids[i] + 2*P_Num) = p_vec(user_v_ids[i] + 2*P_Num);
+    }
+
+    g_vec = g_vec - Map<VectorXf>(user_crsp.data(), 3*P_Num, 1);
 }

@@ -12,8 +12,11 @@
 #include <vtkPolyData.h>
 #include <vtkRenderer.h>
 #include <vtkProperty.h>
-#include "vtkPlane.h"
-#include "vtkImplicitFunction.h"
+#include <vtkPlane.h>
+#include <vtkImplicitFunction.h>
+#include <vtkPropPicker.h>
+#include <vtkWorldPointPicker.h>
+#include <vtkSphereSource.h>
 
 #include "ImageSlice.h"
 #include "Mesh.h"
@@ -28,6 +31,8 @@ public:
     void setImageSlice(ImageSlice *slice);
     void setMesh(Mesh *cur_mesh);
     void setCutter();
+    void getWorldCoord(double x, double y, double coord[3] = nullptr);
+    vtkSmartPointer<vtkRenderer> getRenderer() { return renderer; };
 
 private:
     vtkSmartPointer<vtkPolyDataMapper> mapper;
