@@ -38,6 +38,7 @@ SET( Project_INCLUDE_DIR src/
 						 src/Alg
 						 src/Alg/ICP
 						 src/Alg/NonRigid
+						 src/Alg/Morphing
 						 Extern/
 						 Extern/eigen
 						 )
@@ -55,14 +56,10 @@ SET( MainWin_MOC_HDRS src/UI/CranioViewer.h
 					  src/UI/VTKEventHandler.h
 					  src/Alg/ICP/ICPWrapper.h 
 					  src/Alg/NonRigid/NonRigidWrapper.h )
-SET( ADDCrsp_UIS src/UI/AddCrsp.ui )
-SET( ADDCrsp_MOC_HDRS src/UI/AddCrsp.h )
 
 # QT UI WRAPPER
 QT5_WRAP_UI( MainWin_UIS_H ${MainWin_UIS} )
 QT5_WRAP_CPP( MainWin_MOC_SRCS ${MainWin_MOC_HDRS} )
-QT5_WRAP_UI( ADDCrsp_UIS_H ${ADDCrsp_UIS} )
-QT5_WRAP_CPP( ADDCrsp_MOC_SRCS ${ADDCrsp_MOC_HDRS} )
 
 # SET PREDEFINES
 ADD_DEFINITIONS( -DNOMINMAX )
@@ -83,8 +80,6 @@ ADD_EXECUTABLE( ${PROJECT_NAME}
 				${Project_SRCS}  
 				${MainWin_UIS_H} 
 				${MainWin_MOC_SRCS}
-				${ADDCrsp_UIS_H} 
-				${ADDCrsp_MOC_SRCS} 
 				${SVD_SRCS} 
 				)
 				
@@ -103,15 +98,19 @@ TARGET_LINK_LIBRARIES( ${PROJECT_NAME}
 					   )	
 
 # SET PROJECT FILE GROUPS
-FILE( GLOB UI 		"src/UI/*.*" )
-FILE( GLOB Data 	"src/Data/NiiLoader/*.*" 
-					"src/Data/*.*"
-					)
-FILE( GLOB Alg 		"src/Alg/*/*.*" )					   
+FILE( GLOB UI 				"src/UI/*.*" )
+FILE( GLOB Data_NiiLoader 	"src/Data/NiiLoader/*.*" )
+FILE( GLOB Data				"src/Data/*.*" )
+FILE( GLOB Alg_ICP 			"src/Alg/ICP/*.*" )
+FILE( GLOB Alg_NonRigid		"src/Alg/NonRigid/*.*" )
+FILE( GLOB Alg_Morphing		"src/Alg/Morphing/*.*" )
 					   
-SOURCE_GROUP( "UI" 		FILES ${UI} )
-SOURCE_GROUP( "Data" 	FILES ${Data} )
-SOURCE_GROUP( "Alg" 	FILES ${Alg} )
+SOURCE_GROUP( "UI" 				FILES ${UI} )
+SOURCE_GROUP( "Data" 			FILES ${Data} )
+SOURCE_GROUP( "Data\\Nii" 		FILES ${Data_NiiLoader} )
+SOURCE_GROUP( "Alg\\ICP" 		FILES ${Alg_ICP} )
+SOURCE_GROUP( "Alg\\NonRigid" 	FILES ${Alg_NonRigid} )
+SOURCE_GROUP( "Alg\\Morphing" 	FILES ${Alg_Morphing} )
 
 MESSAGE( STATUS "${ITK_LIBRARIES}" )
 MESSAGE( STATUS "${VTK_LIBRARIES}" )
