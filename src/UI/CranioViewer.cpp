@@ -15,6 +15,7 @@ CranioViewer::CranioViewer()
     }
     main_viewer = new MainViewer;
     tr_widget = new TrWidget;
+    morphing_viewer = new MorphingViewer;
 
     icp = new ICPWrapper;
     non_rigid = new NonRigidWrapper;
@@ -28,6 +29,8 @@ CranioViewer::CranioViewer()
     connect( actionTestITK, SIGNAL( triggered() ), this, SLOT( testITK() ) );
     connect( actionSaveMesh, SIGNAL( triggered() ), this, SLOT( saveMesh() ) );
     connect( actionSaveImg, SIGNAL( triggered() ), this, SLOT( saveImg() ) );
+    connect( actionControlPanel, SIGNAL( triggered() ), this, SLOT( showControlPanel() ) );
+    connect( actionMorphingViewer, SIGNAL( triggered() ), this, SLOT( showMorphingViewer() ) );
 
     connect( m_PushButtonICP, SIGNAL( clicked() ), this, SLOT( runICP() ) );
     connect( m_PushButtonNonRigidIter, SIGNAL( clicked() ), this, SLOT( nonRigidIter() ) );
@@ -71,6 +74,7 @@ void CranioViewer::initVTKWin()
     m_XYViewer->GetRenderWindow()->AddRenderer(m_XYViewerRenderer);
     m_XYViewer->GetRenderWindow()->GetInteractor()->SetInteractorStyle(vtkSmartPointer<vtkInteractorStyleImage>::New());
 }
+
 void CranioViewer::onOpenSlot()
 {
     QString filter;
@@ -447,4 +451,14 @@ void CranioViewer::saveMesh()
 void CranioViewer::saveImg()
 {
     main_viewer->saveImg("output.vti");
+}
+
+void CranioViewer::showControlPanel()
+{
+    dockControlPanel->show();
+}
+
+void CranioViewer::showMorphingViewer()
+{
+    morphing_viewer->show();
 }

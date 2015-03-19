@@ -17,6 +17,7 @@
 #include "ImageSliceWidget.h"
 #include "MainViewer.h"
 #include "TrWidget.h"
+#include "MorphingViewer.h"
 
 #include "ICPWrapper.h"
 #include "ComputeDistMap.h"
@@ -48,6 +49,8 @@ private slots:
     void loadOutDistMap();
     void saveMesh();
     void saveImg();
+    void showControlPanel();
+    void showMorphingViewer();
 
 private:
     vtkSmartPointer<vtkRenderer> m_3DViewerRenderer;
@@ -55,10 +58,10 @@ private:
     vtkSmartPointer<vtkRenderer> m_XZViewerRenderer;
     vtkSmartPointer<vtkRenderer> m_XYViewerRenderer;
 
-    // TODO: 尽量把真正的data放到mainviewer和imageslicewidget里
     ImageSliceWidget *image_slice_widgets[3];
     MainViewer *main_viewer;
     TrWidget *tr_widget; 
+    MorphingViewer *morphing_viewer;
 
     // alg
     ICPWrapper *icp;
