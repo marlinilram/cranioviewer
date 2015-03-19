@@ -64,10 +64,13 @@ void Mesh::computeCenter(double bounds[6])
 
 void Mesh::setRenderer(vtkSmartPointer<vtkRenderer> mainWin_renderer)
 {
-    renderer = mainWin_renderer;
-    renderer->AddActor(actor);
+    if (mainWin_renderer)
+    {
+        renderer = mainWin_renderer;
+        renderer->AddActor(actor);
 
-    renderer->ResetCamera();
+        renderer->ResetCamera();
+    }
 }
 
 void Mesh::updateTransform(double *tr_vals)

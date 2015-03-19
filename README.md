@@ -7,4 +7,4 @@
 4. Deformable registration based on minimizing As-Rigid-As-Possible Energy and Distance Field Gradient Energy
 
 GUI for Main Window
-![alt text](https://github.com/marlinilram/cranioviewer/raw/master/mainWin.png "Main Window")
+![alt text](https://github.com/marlinilram/cranioviewer/raw/master/imgs/mainWin.png "Main Window")

@@ -11,6 +11,8 @@
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 
+#include "MorphingWrapper.h"
+
 class MorphingViewer : public QWidget, public Ui::MorphingViewer
 {
     Q_OBJECT
@@ -22,9 +24,11 @@ public:
 public slots:
     void show();
     void addMesh();
+    void updateRenderer();
 
 private:
     vtkSmartPointer<vtkRenderer> morphing_renderer;
+    MorphingWrapper *morphing_wrapper;
 };
 
 #endif

@@ -33,3 +33,8 @@ void Morphing::computeTransform()
 
     delete shape_match;
 }
+
+void Morphing::addMeshVec(std::vector<double> &mesh_vec)
+{
+    meshes_vec.push_back(mesh_vec);
+}

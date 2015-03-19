@@ -31,35 +31,39 @@ FIND_PATH( BOOST_DIR "boost" )
 
 # SET PROJECT VARS
 # SET SRC VARS
-SET( Project_INCLUDE_DIR src/
-						 src/UI
-						 src/Data
-						 src/Data/NiiLoader
-						 src/Alg
-						 src/Alg/ICP
-						 src/Alg/NonRigid
-						 src/Alg/Morphing
-						 Extern/
-						 Extern/eigen
-						 )
+SET( Project_INCLUDE_DIR 	src/
+							src/UI
+							src/Data
+							src/Data/NiiLoader
+							src/Alg
+							src/Alg/ICP
+							src/Alg/NonRigid
+							src/Alg/Morphing
+							Extern/
+							Extern/eigen
+							)
 FILE( GLOB Project_SRCS "src/*.*" 
 						"src/*/*.*"
 						"src/*/*/*.*"
 						)
 
 # SET QT UI VARS
-SET( MainWin_UIS src/UI/CranioViewer.ui )
-SET( MainWin_MOC_HDRS src/UI/CranioViewer.h 
-					  src/UI/ImageSliceWidget.h
-					  src/UI/TrWidget.h 
-					  src/UI/MainViewer.h 
-					  src/UI/VTKEventHandler.h
-					  src/Alg/ICP/ICPWrapper.h 
-					  src/Alg/NonRigid/NonRigidWrapper.h )
+SET( MainWin_UIS 	src/UI/CranioViewer.ui
+					src/UI/MorphingViewer.ui 
+					)
+SET( MainWin_MOC_HDRS 	src/UI/CranioViewer.h
+						src/UI/MorphingViewer.h
+						src/UI/ImageSliceWidget.h
+						src/UI/TrWidget.h 
+						src/UI/MainViewer.h 
+						src/UI/VTKEventHandler.h
+						src/Alg/ICP/ICPWrapper.h 
+						src/Alg/NonRigid/NonRigidWrapper.h
+						)
 
 # QT UI WRAPPER
-QT5_WRAP_UI( MainWin_UIS_H ${MainWin_UIS} )
-QT5_WRAP_CPP( MainWin_MOC_SRCS ${MainWin_MOC_HDRS} )
+QT5_WRAP_UI( MainWin_UIS_H 		${MainWin_UIS} )
+QT5_WRAP_CPP( MainWin_MOC_SRCS 	${MainWin_MOC_HDRS} )
 
 # SET PREDEFINES
 ADD_DEFINITIONS( -DNOMINMAX )

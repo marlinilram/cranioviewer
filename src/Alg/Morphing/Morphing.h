@@ -10,6 +10,7 @@ public:
     ~Morphing();
 
     void computeTransform();
+    void addMeshVec(std::vector<double> &mesh_vec);
 
 private:
     std::vector<std::vector<double>> meshes_vec;

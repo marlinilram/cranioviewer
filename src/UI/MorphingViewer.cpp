@@ -4,13 +4,14 @@ MorphingViewer::MorphingViewer()
 {
     setupUi(this);
     morphing_renderer = nullptr;
+    morphing_wrapper = new MorphingWrapper;
 
     connect( pushButtonAddMesh, SIGNAL( clicked() ), this, SLOT( addMesh() ) );
 }
 
 MorphingViewer::~MorphingViewer()
 {
-
+    delete morphing_wrapper;
 }
 
 void MorphingViewer::show()
@@ -27,9 +28,6 @@ void MorphingViewer::show()
 
 void MorphingViewer::addMesh()
 {
-    QString filter;
-    filter = "nii image file (*.nii)";
-
     QDir dir;
     //QString fileName = QFileDialog::getOpenFileName( this, QString(tr("Open Image")), dir.absolutePath() , filter );
     QString fileDir = QFileDialog::getExistingDirectory(this, QString(tr("Choose Dir")),dir.absolutePath(), QFileDialog::ShowDirsOnly
@@ -38,7 +36,6 @@ void MorphingViewer::addMesh()
 
     // 支持带中文路径的读取
     std::string temp = fileDir.toStdString();
-    std::cout<<temp<<"\n";
 
     QStringList nameFilter("*.obj");
     QDir directory(fileDir);
@@ -46,7 +43,12 @@ void MorphingViewer::addMesh()
     QStringList::iterator qstring_iter = txtFilesAndDirectories.begin();
     for (; qstring_iter != txtFilesAndDirectories.end(); ++qstring_iter)
     {
-        std::cout<<(*qstring_iter).toStdString()<<"\n";
+        morphing_wrapper->loadMesh(temp+"/"+(*qstring_iter).toStdString());
     }
-   
+    updateRenderer();
+}
+
+void MorphingViewer::updateRenderer()
+{
+    qvtkWidgetMorphing->GetRenderWindow()->Render();
 }
