@@ -3,6 +3,10 @@
 
 #include "Eigen\Eigen"
 #include <vector>
+#include <iostream>
+#include <fstream>
+
+#include "WunderSVD3x3.h"
 
 class ShapeMatch
 {

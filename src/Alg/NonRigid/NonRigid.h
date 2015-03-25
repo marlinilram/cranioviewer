@@ -36,12 +36,20 @@ public:
     void setGradMaxIter(int num) { grad_max_iter = num; };
     void setUserCrsp(std::vector<int> &v_ids, std::vector<double> &crsp_pts);
     void setLamdUserCrsp(double lamd) { lamd_userCrsp = lamd; };
+    void setLamdInflate(double lamd) { lamd_inflate = lamd; };
+    void setLamdDist(double lamd) { lamd_dist = lamd; };
     void computeUserCrsp(VectorXf &p_vec, VectorXf &g_vec);
+
+    void computePPrimeNormal();
+    void computeInflateDir(VectorXf &p_vec, VectorXf &g_vec);
+    void inflateOptStep();
 
 
 protected:
     MatrixX3f d_cur;
     MatrixX3f user_crsp;
+    Matrix3Xf P_Prime_N;
+    vector<Eigen::Vector3i> face_list_ori;
     std::vector<int> user_v_ids;
     vtkSmartPointer<vtkImageData> dist_map;
     vtkSmartPointer<vtkImageData> dist_gradient;
@@ -50,6 +58,8 @@ protected:
     double lamd_arap;
     double grad_step;
     double lamd_userCrsp;
+    double lamd_inflate;
+    double lamd_dist;
     int grad_max_iter;
 
     Mesh *mesh_data;

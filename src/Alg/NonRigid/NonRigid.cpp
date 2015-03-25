@@ -132,7 +132,7 @@ double NonRigid::computeGradEnergy(VectorXf &p_vec, VectorXf &g_vec)
 
     computeUserCrsp(p_vec, userCrsp_g);
 
-    g_vec = dist_g + lamd_arap*arap_g + lamd_userCrsp*userCrsp_g;
+    g_vec = lamd_dist*dist_g + lamd_arap*arap_g + lamd_userCrsp*userCrsp_g;
     g_vec.normalize();
     return f_e;
 }
@@ -154,13 +154,11 @@ void NonRigid::optStep()
     std::clock_t begin = std::clock();
     update_Ri();
     setdvec();
-    std::clock_t end = std::clock();
-    std::cout<<"Updated Ri finished. Elapsed time: "<<double(end-begin)/CLOCKS_PER_SEC<<"\n";
     for (size_t i = 0; i < grad_max_iter; ++i)
     {
-        begin = std::clock();
+        //begin = std::clock();
         f_cur_val = computeGradEnergy(p_vec, g_vec);
-        end = std::clock();
+        //end = std::clock();
         //std::cout<<"Computed Gradient finished. Elapsed time: "<<double(end-begin)/CLOCKS_PER_SEC<<"\nfunction value: "<<f_val<<"delta: "<<f_val-f_cur_val<<"\n";
         if (f_val - f_cur_val < 1e-3) break;
         f_val = f_cur_val;
@@ -170,6 +168,9 @@ void NonRigid::optStep()
     P_Prime.row(0) = p_vec.segment(0, P_Num);
     P_Prime.row(1) = p_vec.segment(0+P_Num, P_Num);
     P_Prime.row(2) = p_vec.segment(0+2*P_Num, P_Num);
+
+    std::clock_t end = std::clock();
+    std::cout<<"One opt step finished. Elapsed time: "<<double(end-begin)/CLOCKS_PER_SEC<<"\n";
 
     if (new_points->GetNumberOfPoints() == p_vec.size()/3)
     {
@@ -257,6 +258,7 @@ void NonRigid::buildAdjList()
 
     // build face list
     face_list.clear();
+    face_list_ori.clear();
     for (vtkIdType i = 0; i != mesh->GetNumberOfCells(); ++i) {
         vtkSmartPointer<vtkIdList> pointIdList = vtkSmartPointer<vtkIdList>::New();
         mesh->GetCellPoints(i, pointIdList);
@@ -264,6 +266,7 @@ void NonRigid::buildAdjList()
         f.push_back(pointIdList->GetId(0));
         f.push_back(pointIdList->GetId(1));
         f.push_back(pointIdList->GetId(2));
+        face_list_ori.push_back((Eigen::Map<Eigen::Vector3i>(&f[0])));
         sort(f.begin(), f.end());
         face_list.push_back(Eigen::Map<Eigen::Vector3i>(&f[0]));
     }
@@ -307,6 +310,8 @@ void NonRigid::initOpt()
     P.resize(3, P_Num);
     for (int i = 0; i != P_Num; ++i) {P.col(i) << temp_mesh_vec[3*i], temp_mesh_vec[3*i+1], temp_mesh_vec[3*i+2];}
     P_Prime = P;
+    P_Prime_N.resize(3, P_Num);
+    P_Prime_N.setOnes();
     R = vector<Matrix3f>(P_Num, Matrix3f::Identity());
 
     vector<Triplet<float>> weight_list;
@@ -383,4 +388,115 @@ void NonRigid::computeUserCrsp(VectorXf &p_vec, VectorXf &g_vec)
     }
 
     g_vec = g_vec - Map<VectorXf>(user_crsp.data(), 3*P_Num, 1);
+}
+
+void NonRigid::computePPrimeNormal()
+{
+    Eigen::Vector3f edge_0;
+    Eigen::Vector3f edge_1;
+    Eigen::Vector3f cur_f_normal;
+    size_t P_Num = adj_list.size();
+
+    P_Prime_N.setOnes();
+
+    for (size_t i = 0; i < face_list_ori.size(); ++i)
+    {
+        edge_0 = P_Prime.col(face_list_ori[i](1)) - P_Prime.col(face_list_ori[i](0));
+        edge_1 = P_Prime.col(face_list_ori[i](2)) - P_Prime.col(face_list_ori[i](1));
+
+        cur_f_normal = edge_0.cross(edge_1);
+        cur_f_normal.normalize();
+
+        P_Prime_N.col(face_list_ori[i](0)) += cur_f_normal;
+        P_Prime_N.col(face_list_ori[i](1)) += cur_f_normal;
+        P_Prime_N.col(face_list_ori[i](2)) += cur_f_normal;
+    }
+
+    for (size_t i = 0; i < P_Num; ++i)
+    {
+        P_Prime_N.col(i).normalize();
+    }
+}
+
+void NonRigid::inflateOptStep()
+{
+    // if D(vi) < 0, move towards normal direction
+    // else, move towards gradient direction
+
+    size_t P_Num = adj_list.size();
+    VectorXf p_vec(3*P_Num);
+    p_vec.segment(0, P_Num) = P_Prime.row(0);
+    p_vec.segment(0+P_Num, P_Num) = P_Prime.row(1);
+    p_vec.segment(0+2*P_Num, P_Num) = P_Prime.row(2);
+    VectorXf g_vec = VectorXf::Zero(p_vec.size());
+    double f_val = numeric_limits<double>::max();
+    double f_cur_val = numeric_limits<double>::max();
+
+    vtkSmartPointer<vtkPolyData> mesh = mesh_data->getMeshData();
+    vtkSmartPointer<vtkPoints> new_points = mesh->GetPoints();
+
+    std::clock_t begin = std::clock();
+    update_Ri();
+    setdvec();
+    for (size_t i = 0; i < grad_max_iter; ++i)
+    {
+        //begin = std::clock();
+        computePPrimeNormal();
+        computeInflateDir(p_vec, g_vec);
+        //end = std::clock();
+        //std::cout<<"Computed Gradient finished. Elapsed time: "<<double(end-begin)/CLOCKS_PER_SEC<<"\nfunction value: "<<f_val<<"delta: "<<f_val-f_cur_val<<"\n";
+        
+        p_vec = p_vec - grad_step*g_vec;
+    }
+
+    P_Prime.row(0) = p_vec.segment(0, P_Num);
+    P_Prime.row(1) = p_vec.segment(0+P_Num, P_Num);
+    P_Prime.row(2) = p_vec.segment(0+2*P_Num, P_Num);
+
+    std::clock_t end = std::clock();
+    std::cout<<"One opt step finished. Elapsed time: "<<double(end-begin)/CLOCKS_PER_SEC<<"\n";
+
+    if (new_points->GetNumberOfPoints() == p_vec.size()/3)
+    {
+        for (size_t i = 0; i != new_points->GetNumberOfPoints(); ++i) {
+            new_points->SetPoint(i, p_vec[i], p_vec[i+P_Num], p_vec[i+2*P_Num]);
+        }
+        new_points->Modified();
+        mesh_data->resetMesh(mesh);
+    }
+    else std::cout<<"Error: number of points doesn't match\n";
+}
+
+void NonRigid::computeInflateDir(VectorXf &p_vec, VectorXf &g_vec)
+{
+    VectorXf arap_g = g_vec;
+    VectorXf inflate_g = g_vec;
+    VectorXf userCrsp_g = g_vec;
+    double f_e = 0;
+    computeArap(p_vec, arap_g);
+    computeUserCrsp(p_vec, userCrsp_g);
+
+    Vector3f cur_v(0,0,0);
+    Vector3f cur_g(0,0,0);
+    size_t P_Num = p_vec.size()/3;
+    for (size_t i = 0; i < P_Num; ++i)
+    {
+        cur_v << p_vec(i + 0*P_Num), p_vec(i + 1*P_Num), p_vec(i + 2*P_Num);
+        if (computeVertexGrad(cur_v, cur_g) > 0.0)
+        {
+            inflate_g(i + 0*P_Num) = cur_g(0);
+            inflate_g(i + 1*P_Num) = cur_g(1);
+            inflate_g(i + 2*P_Num) = cur_g(2);
+        }
+        else
+        {
+            inflate_g(i + 0*P_Num) = -P_Prime_N(0, i);
+            inflate_g(i + 1*P_Num) = -P_Prime_N(1, i);
+            inflate_g(i + 2*P_Num) = -P_Prime_N(2, i);
+        }
+        
+    }
+
+    g_vec = lamd_inflate*inflate_g + lamd_arap*arap_g + lamd_userCrsp*userCrsp_g;
+    g_vec.normalize();
 }

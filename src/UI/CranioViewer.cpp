@@ -27,6 +27,7 @@ CranioViewer::CranioViewer()
     connect( m_OpenAction, SIGNAL( triggered() ), this, SLOT( onOpenSlot() ) );
     connect( m_LoadTemplateMesh, SIGNAL( triggered() ), this, SLOT( loadMesh() ) );
     connect( actionTestITK, SIGNAL( triggered() ), this, SLOT( testITK() ) );
+    connect( actionTestMC, SIGNAL( triggered() ), this, SLOT( testMC() ) );
     connect( actionSaveMesh, SIGNAL( triggered() ), this, SLOT( saveMesh() ) );
     connect( actionSaveImg, SIGNAL( triggered() ), this, SLOT( saveImg() ) );
     connect( actionControlPanel, SIGNAL( triggered() ), this, SLOT( showControlPanel() ) );
@@ -34,6 +35,7 @@ CranioViewer::CranioViewer()
 
     connect( m_PushButtonICP, SIGNAL( clicked() ), this, SLOT( runICP() ) );
     connect( m_PushButtonNonRigidIter, SIGNAL( clicked() ), this, SLOT( nonRigidIter() ) );
+    connect( pushButtonInflateIter, SIGNAL( clicked() ), this, SLOT( inflateIter() ) );
     connect( m_PushButtonNonRigid, SIGNAL( clicked() ), this, SLOT( loadOutDistMap() ) );
 
     setSliceUIWidget();
@@ -286,6 +288,7 @@ void CranioViewer::runICP()
 
         icp->setTempData(main_viewer->getMeshData());
         icp->setImage(main_viewer->getImgData());
+        icp->setIter(spinBoxRigidIter->value());
         icp->runICP();
 
         disconnect( icp, SIGNAL( resetTrans() ), this, SLOT( resetTrans() ) );
@@ -365,7 +368,9 @@ void CranioViewer::nonRigidIter()
 {
     size_t n_iter = spinBoxOutIter->value();
 
-    non_rigid->getNonRigid()->setGradMaxIter(spinBoxOutIter->value());
+    non_rigid->getNonRigid()->setGradMaxIter(spinBoxInIter->value());
+
+    non_rigid->getNonRigid()->setLamdDist(doubleSpinBoxLamdDist->value());
 
     non_rigid->getNonRigid()->setLamdArap(doubleSpinBoxLamdArap->value());
 
@@ -445,12 +450,24 @@ void CranioViewer::loadOutDistMap()
 
 void CranioViewer::saveMesh()
 {
-    main_viewer->saveMesh("output.obj");
+    QString fileName = QFileDialog::getSaveFileName(this,
+        tr("Save Obj"), "",
+        tr("Obj file (*.obj);;All Files (*)"));
+
+    if ( fileName.isEmpty() == true ) return;
+
+    main_viewer->saveMesh(fileName.toStdString());
 }
 
 void CranioViewer::saveImg()
 {
-    main_viewer->saveImg("output.vti");
+    QString fileName = QFileDialog::getSaveFileName(this,
+        tr("Save vti"), "",
+        tr("Obj file (*.vti);;All Files (*)"));
+
+    if ( fileName.isEmpty() == true ) return;
+
+    main_viewer->saveImg(fileName.toStdString());
 }
 
 void CranioViewer::showControlPanel()
@@ -461,4 +478,39 @@ void CranioViewer::showControlPanel()
 void CranioViewer::showMorphingViewer()
 {
     morphing_viewer->show();
+}
+
+void CranioViewer::testMC()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,
+        tr("Save Obj"), "",
+        tr("Obj file (*.obj);;All Files (*)"));
+
+    if ( fileName.isEmpty() == true ) return;
+
+    main_viewer->runMC(fileName.toStdString());
+}
+
+void CranioViewer::inflateIter()
+{
+    size_t n_iter = spinBoxOutIter->value();
+
+    non_rigid->getNonRigid()->setGradMaxIter(spinBoxOutIter->value());
+
+    non_rigid->getNonRigid()->setLamdInflate(doubleSpinBoxLamdDist->value());
+
+    non_rigid->getNonRigid()->setLamdArap(doubleSpinBoxLamdArap->value());
+
+    non_rigid->getNonRigid()->setGradStep(doubleSpinBoxGradStep->value());
+
+    non_rigid->getNonRigid()->setLamdUserCrsp(doubleSpinBoxLamdUserCrsp->value());
+
+    non_rigid->getNonRigid()->setUserCrsp(event_handler->getPickedIds(), event_handler->getCrspPos());
+
+
+    for (size_t i = 0; i < n_iter; ++i)
+    {
+        non_rigid->getNonRigid()->inflateOptStep();
+        updateRenderers();
+    }
 }

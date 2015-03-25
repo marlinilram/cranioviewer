@@ -16,8 +16,9 @@ void Morphing::computeTransform()
 {
     ShapeMatch *shape_match;
     shape_match = new ShapeMatch;
-    A_mats.resize(meshes_vec.size());
-    t_vecs.resize(meshes_vec.size());
+    A_mats.clear();
+    t_vecs.clear();
+    std::cout<<"Total meshes: "<<meshes_vec.size()<<"\n";
 
     // we set meshes_vec[0] as default template mesh
     shape_match->setTemplate(meshes_vec[0]);
@@ -29,6 +30,12 @@ void Morphing::computeTransform()
         shape_match->setTarget(meshes_vec[i]);
         A_mats.push_back(shape_match->computeA());
         t_vecs.push_back(shape_match->computeT());
+    }
+
+    for (size_t i = 0; i < A_mats.size(); ++i)
+    {
+        std::cout<<"A: \n"<<A_mats[i]<<"\n";
+        std::cout<<"t: \n"<<t_vecs[i]<<"\n";
     }
 
     delete shape_match;

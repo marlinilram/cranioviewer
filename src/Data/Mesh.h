@@ -15,6 +15,8 @@
 #include <string>
 #include <ctime>
 
+#include "vtkOBJWriter.h"
+
 class Mesh
 {
 public:
@@ -28,6 +30,7 @@ public:
     void updateTransform(double *tr_vals);
     void reloadTransform();
     vtkSmartPointer<vtkPolyData> getMeshData() { return mapper->GetInput(); };
+    vtkSmartPointer<vtkActor> getActor() { return actor; };
     vtkSmartPointer<vtkTransform> getTransform() { return widget_transform; };
     void resetMesh(vtkSmartPointer<vtkPolyData> new_mesh_data);
     double *getMeshCenter() { return mesh_center; };

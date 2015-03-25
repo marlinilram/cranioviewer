@@ -6,7 +6,14 @@ MorphingViewer::MorphingViewer()
     morphing_renderer = nullptr;
     morphing_wrapper = new MorphingWrapper;
 
+    morphing_renderer = vtkSmartPointer<vtkRenderer>::New();
+    morphing_renderer->SetBackground(0.0,0.0,0.0);
+    qvtkWidgetMorphing->GetRenderWindow()->AddRenderer(morphing_renderer);
+
     connect( pushButtonAddMesh, SIGNAL( clicked() ), this, SLOT( addMesh() ) );
+    connect( pushButtonSaveMesh, SIGNAL( clicked() ), this, SLOT( saveMesh() ) );
+    connect( sliderMorphing, SIGNAL( sliderMoved( int ) ), this, SLOT( updateCurMorph( int ) ) );
+    connect( sliderMorphing, SIGNAL( valueChanged( int ) ), this, SLOT( updateCurMorph( int ) ) );
 }
 
 MorphingViewer::~MorphingViewer()
@@ -17,13 +24,6 @@ MorphingViewer::~MorphingViewer()
 void MorphingViewer::show()
 {
     QWidget::show();
-
-    if (morphing_renderer)
-        qvtkWidgetMorphing->GetRenderWindow()->RemoveRenderer(morphing_renderer);
-
-    morphing_renderer = vtkSmartPointer<vtkRenderer>::New();
-    morphing_renderer->SetBackground(0.0,0.0,0.0);
-    qvtkWidgetMorphing->GetRenderWindow()->AddRenderer(morphing_renderer);
 }
 
 void MorphingViewer::addMesh()
@@ -43,12 +43,33 @@ void MorphingViewer::addMesh()
     QStringList::iterator qstring_iter = txtFilesAndDirectories.begin();
     for (; qstring_iter != txtFilesAndDirectories.end(); ++qstring_iter)
     {
-        morphing_wrapper->loadMesh(temp+"/"+(*qstring_iter).toStdString());
+        morphing_wrapper->loadMesh(temp+"/"+(*qstring_iter).toStdString(), morphing_renderer);
     }
+    morphing_renderer->ResetCamera();
+    morphing_wrapper->setCenterMesh(0);
+    morphing_wrapper->getMorphingHandler()->computeTransform();
     updateRenderer();
 }
 
 void MorphingViewer::updateRenderer()
 {
     qvtkWidgetMorphing->GetRenderWindow()->Render();
+}
+
+void MorphingViewer::updateCurMorph(int val)
+{
+    double morph_paras[2];
+    morph_paras[1] = (double)val / sliderMorphing->maximum();
+    morph_paras[0] = 1-morph_paras[1];
+
+    morphing_wrapper->doMorphing(morph_paras, 2);
+    updateRenderer();
+}
+
+void MorphingViewer::saveMesh()
+{
+    vtkSmartPointer<vtkOBJWriter> writer = vtkSmartPointer<vtkOBJWriter>::New();
+    writer->SetInputData(morphing_wrapper->getMeshPtr(0)->getMeshData());
+    writer->SetFileName("morph_result.obj");
+    writer->Update();
 }

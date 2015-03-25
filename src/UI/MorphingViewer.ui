@@ -24,6 +24,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="pushButtonSaveMesh">
+       <property name="text">
+        <string>Save Mesh</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPlainTextEdit" name="editMorphingWeights"/>
      </item>
      <item>

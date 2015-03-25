@@ -107,8 +107,11 @@
      <string>Test</string>
     </property>
     <addaction name="actionTestITK"/>
+    <addaction name="actionTestMC"/>
+    <addaction name="separator"/>
     <addaction name="actionSaveMesh"/>
     <addaction name="actionSaveImg"/>
+    <addaction name="separator"/>
     <addaction name="actionControlPanel"/>
     <addaction name="actionMorphingViewer"/>
    </widget>
@@ -613,18 +616,49 @@
         <string>Registration</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="0">
-         <widget class="QPushButton" name="m_PushButtonICP">
+        <item row="3" column="0">
+         <widget class="QPushButton" name="m_PushButtonAddCrsp">
           <property name="text">
-           <string>Rigid</string>
-          </property>
-          <property name="checkable">
-           <bool>false</bool>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
+           <string>Manually Set Correspondences</string>
           </property>
          </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QPushButton" name="m_PushButtonNonRigidIter">
+          <property name="text">
+           <string>Non Rigit Iter</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="2,1">
+          <item>
+           <widget class="QPushButton" name="m_PushButtonICP">
+            <property name="text">
+             <string>Rigid</string>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="spinBoxRigidIter">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>500</number>
+            </property>
+            <property name="value">
+             <number>100</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item row="5" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_10">
@@ -651,13 +685,6 @@
           </item>
          </layout>
         </item>
-        <item row="3" column="0">
-         <widget class="QPushButton" name="m_PushButtonAddCrsp">
-          <property name="text">
-           <string>Manually Set Correspondences</string>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="0">
          <widget class="QPushButton" name="m_PushButtonNonRigid">
           <property name="text">
@@ -665,15 +692,15 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QPushButton" name="m_PushButtonNonRigidIter">
-          <property name="text">
-           <string>Non Rigit Iter</string>
-          </property>
-         </widget>
-        </item>
         <item row="6" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <widget class="QDoubleSpinBox" name="doubleSpinBoxLamdDist">
+            <property name="value">
+             <double>1.000000000000000</double>
+            </property>
+           </widget>
+          </item>
           <item>
            <widget class="QDoubleSpinBox" name="doubleSpinBoxLamdArap">
             <property name="value">
@@ -689,6 +716,13 @@
            </widget>
           </item>
          </layout>
+        </item>
+        <item row="4" column="0">
+         <widget class="QPushButton" name="pushButtonInflateIter">
+          <property name="text">
+           <string>Inflate Iter</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -752,6 +786,11 @@
   <action name="actionMorphingViewer">
    <property name="text">
     <string>Morphing</string>
+   </property>
+  </action>
+  <action name="actionTestMC">
+   <property name="text">
+    <string>TestMC</string>
    </property>
   </action>
  </widget>

@@ -6,6 +6,7 @@ ICPWrapper::ICPWrapper()
     icp_pt_pt = nullptr;
     temp_mesh = nullptr;
     nii_img = nullptr;
+    max_iter = 100;
 
     icp_trans_mat = vtkSmartPointer<vtkMatrix4x4>::New();
     icp_trans = vtkSmartPointer<vtkTransform>::New();
@@ -95,7 +96,7 @@ void ICPWrapper::runICP()
 
         double last_error = std::numeric_limits<double>::max();
         double cur_error = -1;
-        int max_iter = 100;
+        //int max_iter = 100;
         double min_delta = 1e-3;
 
         Matrix R = Matrix::eye(3);

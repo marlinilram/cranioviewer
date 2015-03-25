@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QSlider>
 #include <vtkXMLImageDataWriter.h>
-#include "vtkOBJWriter.h"
 #include "ImageSlice.h"
 #include "Mesh.h"
 #include "Volume.h"
@@ -35,6 +34,7 @@ public:
     void saveImg(std::string f_name);
 
     void updateVolumeView();
+    void runMC(std::string fName);
 
 private slots:
     void updateYZPlaneView(int value);

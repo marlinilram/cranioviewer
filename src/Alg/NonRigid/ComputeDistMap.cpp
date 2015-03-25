@@ -220,7 +220,7 @@ void ComputeDistMap::computeFinalDistMap()
     vtkSmartPointer<vtkImageData> inside = vtkSmartPointer<vtkImageData>::New();
     inside->DeepCopy(computeInnerDist());
     end = std::clock();
-    std::cout<<"Compute outward dist map finished. Elapsed time: "<<double(end-begin)/CLOCKS_PER_SEC<<"\n";
+    std::cout<<"Compute inward dist map finished. Elapsed time: "<<double(end-begin)/CLOCKS_PER_SEC<<"\n";
 
     std::cout<<"combine inward dist map and outward dist map\n";
     begin = std::clock();
@@ -299,6 +299,7 @@ void ComputeDistMap::setActiveImg(FloatImageType::Pointer active_ptr, bool out_t
     std::cout<<"fill active image for fast marching\n";
     std::clock_t begin = clock();
     FloatImageType::IndexType index;
+    short *cur_ptr = static_cast<short *>(bone_img->GetScalarPointer());
     for (size_t k = 0; k < size[2]; ++k)
     {
         for (size_t j = 0; j < size[1]; ++j)
@@ -309,14 +310,15 @@ void ComputeDistMap::setActiveImg(FloatImageType::Pointer active_ptr, bool out_t
                 index[1] = j;
                 index[0] = i;
 
-                short cur_val = static_cast<short *>(bone_img->GetScalarPointer(i, j, k))[0];
-                if(cur_val <= max_interval && cur_val >= min_interval)
+                if((*cur_ptr) <= max_interval && (*cur_ptr) >= min_interval)
                 {
                     if (out_tag)
                         active_ptr->SetPixel(index, 1.0);
                     else
                         active_ptr->SetPixel(index, 0.0);
                 }
+
+                ++cur_ptr;
             }
         }
     }
@@ -442,6 +444,7 @@ void ComputeDistMap::gaussianSmooth(vtkSmartPointer<vtkImageData> img)
     std::cout<<"fill itk image for gaussian filter\n";
     std::clock_t begin = clock();
     FloatImageType::IndexType index;
+    short *cur_ptr = static_cast<short *>(img->GetScalarPointer());
     for (size_t k = 0; k < size[2]; ++k)
     {
         for (size_t j = 0; j < size[1]; ++j)
@@ -452,11 +455,12 @@ void ComputeDistMap::gaussianSmooth(vtkSmartPointer<vtkImageData> img)
                 index[1] = j;
                 index[0] = i;
 
-                short cur_val = static_cast<short *>(img->GetScalarPointer(i, j, k))[0];
-                if(cur_val <= max_interval && cur_val >= min_interval)
+                if((*cur_ptr) <= max_interval && (*cur_ptr) >= min_interval)
                 {
                         AliveImage->SetPixel(index, 500);
                 }
+
+                ++cur_ptr;
             }
         }
     }

@@ -32,12 +32,14 @@ public:
    void setImage(NiiLoader *img);
    void runICPStep();
    void runICP();
+   void setIter(int n_iter) { max_iter = n_iter; };
 
 signals:
    void updateRenderers();
    void resetTrans();
 
 private:
+    int max_iter;
     NiiLoader *nii_img;
     Mesh *temp_mesh;
     IcpPointToPlane *icp_pt_plane;

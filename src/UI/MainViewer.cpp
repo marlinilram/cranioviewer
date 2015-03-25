@@ -237,3 +237,23 @@ void MainViewer::saveImg(std::string f_name)
     writer->SetInputData(image_slices[0]->getSliceMapper()->GetInput());
     writer->Write();
 }
+
+void MainViewer::runMC(std::string fName)
+{
+    if (!nii_img)
+    {
+        return;
+    }
+
+    vtkSmartPointer<vtkMarchingCubes> surface = vtkSmartPointer<vtkMarchingCubes>::New();
+    surface->SetInputData(nii_img->getData());
+    surface->ComputeGradientsOn();
+    surface->SetNumberOfContours(1);
+    surface->SetValue(0, 125);
+    surface->Update();
+
+    vtkSmartPointer<vtkOBJWriter> writer = vtkSmartPointer<vtkOBJWriter>::New();
+    writer->SetInputData(surface->GetOutput());
+    writer->SetFileName(fName.c_str());
+    writer->Update();
+}

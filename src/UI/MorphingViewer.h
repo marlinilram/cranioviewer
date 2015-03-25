@@ -10,6 +10,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
+#include <vtkAxesActor.h>
+#include <vtkOrientationMarkerWidget.h>
 
 #include "MorphingWrapper.h"
 
@@ -25,6 +27,8 @@ public slots:
     void show();
     void addMesh();
     void updateRenderer();
+    void updateCurMorph(int val);
+    void saveMesh();
 
 private:
     vtkSmartPointer<vtkRenderer> morphing_renderer;

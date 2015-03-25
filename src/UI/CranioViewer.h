@@ -46,11 +46,13 @@ private slots:
     void testITK();
     void resetTrans();
     void nonRigidIter();
+    void inflateIter();
     void loadOutDistMap();
     void saveMesh();
     void saveImg();
     void showControlPanel();
     void showMorphingViewer();
+    void testMC();
 
 private:
     vtkSmartPointer<vtkRenderer> m_3DViewerRenderer;
