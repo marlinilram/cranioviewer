@@ -35,6 +35,8 @@ void ShapeMatch::setTarget(std::vector<double> &target_vec)
     target_mat.row(0) = (target_mat.row(0).array() - target_center(0)).matrix();
     target_mat.row(1) = (target_mat.row(1).array() - target_center(1)).matrix();
     target_mat.row(2) = (target_mat.row(2).array() - target_center(2)).matrix();
+
+    target_vec = std::vector<double>(target_mat.data(), target_mat.data()+target_mat.cols()*target_mat.rows());
 }
 
 void ShapeMatch::setTemplate(std::vector<double> &template_vec)

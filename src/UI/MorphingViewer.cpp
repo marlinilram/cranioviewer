@@ -62,7 +62,7 @@ void MorphingViewer::updateCurMorph(int val)
     morph_paras[1] = (double)val / sliderMorphing->maximum();
     morph_paras[0] = 1-morph_paras[1];
 
-    morphing_wrapper->doMorphing(morph_paras, 2);
+    morphing_wrapper->doLinearMorphing(morph_paras, 2);
     updateRenderer();
 }
 

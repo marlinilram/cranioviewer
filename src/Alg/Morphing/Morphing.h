@@ -11,7 +11,8 @@ public:
 
     void computeTransform();
     void addMeshVec(std::vector<double> &mesh_vec);
-    Eigen::Matrix3d &getAMat(size_t i_mesh) { return A_mats[i_mesh]; };
+    Eigen::Matrix3d *getAMat(size_t i_mesh) { return &A_mats[i_mesh]; };
+    std::vector<double> &getMeshVec(size_t i_mesh) { return meshes_vec[i_mesh]; };
 
 private:
     std::vector<std::vector<double>> meshes_vec;

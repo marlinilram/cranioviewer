@@ -60,7 +60,7 @@ void MorphingWrapper::doMorphing(double *paras, int n_paras)
             for (size_t j = 0; j < 3; ++j)
             {
                 A_element = mat->GetElement(i, j);
-                mat->SetElement(i, j, A_element + paras[i_mesh]*morphing_handler->getAMat(i_mesh)(i, j));
+                mat->SetElement(i, j, A_element + paras[i_mesh]*(*morphing_handler->getAMat(i_mesh))(i, j));
             }
         }
     }
@@ -77,5 +77,38 @@ void MorphingWrapper::setCenterMesh(size_t i_mesh)
     {
         if (i != i_mesh)
             meshes[i]->getActor()->SetVisibility(0);
+    }
+}
+
+void MorphingWrapper::doLinearMorphing(double *paras, int n_paras)
+{
+    if (n_paras != meshes.size())
+    {
+        std::cout<<"Warning: num of control parameters isn't match with internal number of meshes\n";
+        return;
+    }
+
+    vtkSmartPointer<vtkPolyData> mesh_data = meshes[0]->getMeshData();
+    vtkSmartPointer<vtkPoints> new_points = mesh_data->GetPoints();
+
+    Eigen::VectorXd m_result(3*new_points->GetNumberOfPoints());
+    m_result.setZero();
+
+    for (size_t i_mesh = 0; i_mesh < meshes.size(); ++i_mesh)
+    {
+        std::vector<double> &temp_mesh_vec = morphing_handler->getMeshVec(i_mesh);
+        Eigen::Map<Eigen::VectorXd>cur_mesh(&temp_mesh_vec[0], temp_mesh_vec.size());
+
+        m_result += paras[i_mesh]*cur_mesh;
+    }
+
+    if (new_points->GetNumberOfPoints() == m_result.size()/3)
+    {
+        for (size_t i = 0; i != new_points->GetNumberOfPoints(); ++i) {
+            new_points->SetPoint(i, m_result[3*i], m_result[3*i+1], m_result[3*i+2]);
+        }
+        new_points->Modified();
+        meshes[0]->resetMesh(mesh_data);
+        meshes[0]->setMeshCenter();
     }
 }
