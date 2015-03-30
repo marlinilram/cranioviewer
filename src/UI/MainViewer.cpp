@@ -252,8 +252,15 @@ void MainViewer::runMC(std::string fName)
     surface->SetValue(0, 125);
     surface->Update();
 
+    vtkSmartPointer<vtkPolyDataConnectivityFilter> cfilter = vtkSmartPointer<vtkPolyDataConnectivityFilter>::New();
+    cfilter->SetInputConnection(surface->GetOutputPort());
+    cfilter->SetExtractionModeToLargestRegion();
+    //cfilter->SetExtractionModeToPointSeededRegions();
+    //cfilter->SetClosestPoint(x,y,z);
+    cfilter->Update();
+
     vtkSmartPointer<vtkOBJWriter> writer = vtkSmartPointer<vtkOBJWriter>::New();
-    writer->SetInputData(surface->GetOutput());
+    writer->SetInputData(cfilter->GetOutput());
     writer->SetFileName(fName.c_str());
     writer->Update();
 }
