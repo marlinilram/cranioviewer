@@ -148,6 +148,7 @@ vtkSmartPointer<vtkImageData> ComputeDistMap::computeOuterDist()
     marcher->SetTrialPoints( adaptor->GetTrialPoints() );
 
     std::clock_t begin = std::clock();
+    std::cout << "\nRun fast marching filter\n";
     marcher->Update();
     std::clock_t end = std::clock();
     std::cout<<"ITK fast marching filter finished. Elapsed time: "<<double(end-begin)/CLOCKS_PER_SEC<<"\n";
@@ -195,7 +196,11 @@ vtkSmartPointer<vtkImageData> ComputeDistMap::computeInnerDist()
     marcher->SetAlivePoints( adaptor->GetAlivePoints() );
     marcher->SetTrialPoints( adaptor->GetTrialPoints() );
 
+    std::clock_t begin = std::clock();
+    std::cout << "\nRun fast marching filter\n";
     marcher->Update();
+    std::clock_t end = std::clock();
+    std::cout << "ITK fast marching filter finished. Elapsed time: " << double(end - begin) / CLOCKS_PER_SEC << "\n";
 
     ConnectorType::Pointer connector = ConnectorType::New();
     connector->SetInput(marcher->GetOutput());
@@ -206,7 +211,7 @@ vtkSmartPointer<vtkImageData> ComputeDistMap::computeInnerDist()
 
 void ComputeDistMap::computeFinalDistMap()
 {
-    std::cout<<"compute outward dist map\n";
+    std::cout<<"\ncompute outward dist map\n";
     std::clock_t begin;
     std::clock_t end;
     begin = std::clock();
@@ -215,14 +220,14 @@ void ComputeDistMap::computeFinalDistMap()
     end = std::clock();
     std::cout<<"Compute outward dist map finished. Elapsed time: "<<double(end-begin)/CLOCKS_PER_SEC<<"\n";
 
-    std::cout<<"compute inward dist map\n";
+    std::cout<<"\ncompute inward dist map\n";
     begin = std::clock();
     vtkSmartPointer<vtkImageData> inside = vtkSmartPointer<vtkImageData>::New();
     inside->DeepCopy(computeInnerDist());
     end = std::clock();
     std::cout<<"Compute inward dist map finished. Elapsed time: "<<double(end-begin)/CLOCKS_PER_SEC<<"\n";
 
-    std::cout<<"combine inward dist map and outward dist map\n";
+    std::cout<<"\ncombine inward dist map and outward dist map\n";
     begin = std::clock();
     int *dims = bone_img->GetDimensions();
     float *out_ptr = static_cast<float *>(outside->GetScalarPointer());
@@ -279,7 +284,7 @@ void ComputeDistMap::setVTKImg(vtkSmartPointer< vtkImageData> img_data, double m
     //size[1] = 500;
     //size[2] = 500;
 
-    std::cout<<"dist map size: "<<size<<"\n";
+    std::cout<<"\ndist map size: "<<size<<"\n";
 
     // region of the output image
     region.SetSize( size );
@@ -296,7 +301,7 @@ void ComputeDistMap::setVTKImg(vtkSmartPointer< vtkImageData> img_data, double m
 void ComputeDistMap::setActiveImg(FloatImageType::Pointer active_ptr, bool out_tag)
 {
     // index[slice][row][col] namely index[k][j][i]
-    std::cout<<"fill active image for fast marching\n";
+    std::cout<<"\nfill active image for fast marching\n";
     std::clock_t begin = clock();
     FloatImageType::IndexType index;
     short *cur_ptr = static_cast<short *>(bone_img->GetScalarPointer());
@@ -331,7 +336,7 @@ void ComputeDistMap::setActiveImg(FloatImageType::Pointer active_ptr, bool out_t
 void ComputeDistMap::setTrialImg(FloatImageType::Pointer trial_ptr, FloatImageType::Pointer active_ptr)
 {
     // index[slice][row][col] namely index[k][j][i]
-    std::cout<<"filling trial image for fast marching\n";
+    std::cout<<"\nfilling trial image for fast marching\n";
     std::clock_t begin = std::clock();
     FloatImageType::IndexType index;
     for (size_t k = 0; k < size[2]; ++k)
@@ -441,7 +446,7 @@ void ComputeDistMap::gaussianSmooth(vtkSmartPointer<vtkImageData> img)
     AliveImage->FillBuffer( 0.0 );
     AliveImage->SetSpacing(output_spacing);
 
-    std::cout<<"fill itk image for gaussian filter\n";
+    std::cout<<"\nfill itk image for gaussian filter\n";
     std::clock_t begin = clock();
     FloatImageType::IndexType index;
     short *cur_ptr = static_cast<short *>(img->GetScalarPointer());
@@ -469,11 +474,17 @@ void ComputeDistMap::gaussianSmooth(vtkSmartPointer<vtkImageData> img)
 
     std::cout<<"filling finished. Elapsed time: "<<double(end-begin)/CLOCKS_PER_SEC<<"\n";
 
+    std::cout << "\nRun Gaussian Filter\n";
+    begin = clock();
+
     GaussianFilterType::Pointer gaussian_filter = GaussianFilterType::New();
     gaussian_filter->SetInput(AliveImage);
     gaussian_filter->SetVariance(1.0);
     gaussian_filter->SetUseImageSpacingOn();
     gaussian_filter->Update();
+
+    end = clock();
+    std::cout << "Gaussian filtering finished. Elapsed time: " << double(end - begin) / CLOCKS_PER_SEC << "\n";
 
     ShortConnectorType::Pointer connector = ShortConnectorType::New();
     connector->SetInput(gaussian_filter->GetOutput());
