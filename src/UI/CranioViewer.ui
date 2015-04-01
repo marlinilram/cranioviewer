@@ -793,6 +793,11 @@
     <string>TestMC</string>
    </property>
   </action>
+  <action name="actionLoadDistMap">
+   <property name="text">
+    <string>Load Dist Map</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

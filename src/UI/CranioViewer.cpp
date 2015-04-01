@@ -16,6 +16,7 @@ CranioViewer::CranioViewer()
     main_viewer = new MainViewer;
     tr_widget = new TrWidget;
     morphing_viewer = new MorphingViewer;
+    dist_map_config = new DistMapConfigDialog;
 
     icp = new ICPWrapper;
     non_rigid = new NonRigidWrapper;
@@ -32,6 +33,7 @@ CranioViewer::CranioViewer()
     connect( actionSaveImg, SIGNAL( triggered() ), this, SLOT( saveImg() ) );
     connect( actionControlPanel, SIGNAL( triggered() ), this, SLOT( showControlPanel() ) );
     connect( actionMorphingViewer, SIGNAL( triggered() ), this, SLOT( showMorphingViewer() ) );
+    connect( dist_map_config, SIGNAL( accepted() ), this, SLOT( computeDistMap() ) );
 
     connect( m_PushButtonICP, SIGNAL( clicked() ), this, SLOT( runICP() ) );
     connect( m_PushButtonNonRigidIter, SIGNAL( clicked() ), this, SLOT( nonRigidIter() ) );
@@ -45,6 +47,19 @@ CranioViewer::CranioViewer()
 
 CranioViewer::~CranioViewer()
 {
+    for (size_t i = 0; i < 3; ++i)
+    {
+        delete image_slice_widgets[i];
+    }
+    delete main_viewer;
+    delete tr_widget;
+    delete morphing_viewer;
+    delete dist_map_config;
+
+    delete icp;
+    delete non_rigid;
+
+    delete event_handler;
 }
 
 void CranioViewer::initVTKWin()
@@ -300,42 +315,7 @@ void CranioViewer::runICP()
 
 void CranioViewer::testITK()
 {
-    ComputeDistMap distmap;
-    distmap.setVTKImg(main_viewer->getImgData()->getData(), main_viewer->getVolumeData()->getISOVal(), main_viewer->getVolumeData()->getISOWidth());
-    //distmap.computeFinalDistMap();
-    distmap.gaussianSmooth(main_viewer->getImgData()->getData());
-
-    main_viewer->clearImage();
-    for (size_t i = 0; i < 3; ++i)
-    {
-        image_slice_widgets[i]->clearSlice();
-        image_slice_widgets[i]->clearIntersector();
-    }
-    // reinit
-    initVTKWin();
-    main_viewer->setRenderer(m_3DViewerRenderer);
-    main_viewer->setImgData(distmap.getDistMap());
-
-    std::string orients[3] = {"YZ", "XZ", "XY"};
-    vtkSmartPointer<vtkRenderer> plane_renderers[3]=
-    {m_YZViewerRenderer, m_XZViewerRenderer, m_XYViewerRenderer};
-    for (size_t i = 0; i < 3; ++i)
-    {
-        image_slice_widgets[i]->setSlice(distmap.getDistMap(), orients[i], plane_renderers[i]);
-        image_slice_widgets[i]->setSliceColorWin(10.0);
-        image_slice_widgets[i]->setSliceColorLev(0.0);
-    }
-
-    if (main_viewer->getMeshData())
-    {
-        for (size_t i = 0; i < 3; ++i)
-        {
-            image_slice_widgets[i]->setMesh(main_viewer->getMeshData());
-        }
-        main_viewer->getMeshData()->setRenderer(m_3DViewerRenderer);
-    }
-
-    updateRenderers();
+    dist_map_config->show();
 
     //non_rigid->getNonRigid()->setDistMap(distmap.getDistMap());
     //non_rigid->getNonRigid()->setMesh(main_viewer->getMeshData());
@@ -445,7 +425,8 @@ void CranioViewer::loadOutDistMap()
     updateRenderers();
 
     non_rigid->getNonRigid()->setDistMap(dist_map);
-    non_rigid->getNonRigid()->setMesh(main_viewer->getMeshData());
+    if (main_viewer->getMeshData())
+        non_rigid->getNonRigid()->setMesh(main_viewer->getMeshData());
 }
 
 void CranioViewer::saveMesh()
@@ -513,4 +494,48 @@ void CranioViewer::inflateIter()
         non_rigid->getNonRigid()->inflateOptStep();
         updateRenderers();
     }
+}
+
+void CranioViewer::computeDistMap()
+{
+    ComputeDistMap distmap;
+    distmap.setVTKImg(main_viewer->getImgData()->getData(), main_viewer->getVolumeData()->getISOVal(), main_viewer->getVolumeData()->getISOWidth());
+    distmap.setStopCriterion(dist_map_config->doubleSpinBoxFMStopVal->value());
+
+    if(dist_map_config->checkBoxUseGaus->isChecked())
+        distmap.gaussianSmooth(main_viewer->getImgData()->getData());
+    else
+        distmap.computeFinalDistMap();
+
+    main_viewer->clearImage();
+    for (size_t i = 0; i < 3; ++i)
+    {
+        image_slice_widgets[i]->clearSlice();
+        image_slice_widgets[i]->clearIntersector();
+    }
+    // reinit
+    initVTKWin();
+    main_viewer->setRenderer(m_3DViewerRenderer);
+    main_viewer->setImgData(distmap.getDistMap());
+
+    std::string orients[3] = {"YZ", "XZ", "XY"};
+    vtkSmartPointer<vtkRenderer> plane_renderers[3]=
+    {m_YZViewerRenderer, m_XZViewerRenderer, m_XYViewerRenderer};
+    for (size_t i = 0; i < 3; ++i)
+    {
+        image_slice_widgets[i]->setSlice(distmap.getDistMap(), orients[i], plane_renderers[i]);
+        image_slice_widgets[i]->setSliceColorWin(10.0);
+        image_slice_widgets[i]->setSliceColorLev(0.0);
+    }
+
+    if (main_viewer->getMeshData())
+    {
+        for (size_t i = 0; i < 3; ++i)
+        {
+            image_slice_widgets[i]->setMesh(main_viewer->getMeshData());
+        }
+        main_viewer->getMeshData()->setRenderer(m_3DViewerRenderer);
+    }
+
+    updateRenderers();
 }

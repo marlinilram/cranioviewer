@@ -18,6 +18,7 @@
 #include "MainViewer.h"
 #include "TrWidget.h"
 #include "MorphingViewer.h"
+#include "DistMapConfigDialog.h"
 
 #include "ICPWrapper.h"
 #include "ComputeDistMap.h"
@@ -44,6 +45,7 @@ private slots:
     void updateRenderers();
     void runICP();
     void testITK();
+    void computeDistMap();
     void resetTrans();
     void nonRigidIter();
     void inflateIter();
@@ -64,6 +66,7 @@ private:
     MainViewer *main_viewer;
     TrWidget *tr_widget; 
     MorphingViewer *morphing_viewer;
+    DistMapConfigDialog *dist_map_config;
 
     // alg
     ICPWrapper *icp;

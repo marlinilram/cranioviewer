@@ -51,6 +51,7 @@ public:
     void setTrialImg(FloatImageType::Pointer trial_ptr, FloatImageType::Pointer active_ptr);
     vtkSmartPointer<vtkImageData> getDistMap() { return dist_map; };
     void gaussianSmooth(vtkSmartPointer<vtkImageData> img);
+    void setStopCriterion(double stop_val) { criterion->SetThreshold(stop_val); };
 
 private:
     CriterionType::Pointer criterion;

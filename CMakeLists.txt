@@ -50,6 +50,7 @@ FILE( GLOB Project_SRCS "src/*.*"
 # SET QT UI VARS
 SET( MainWin_UIS 	src/UI/CranioViewer.ui
 					src/UI/MorphingViewer.ui 
+					src/UI/DistMapConfigDialog.ui
 					)
 SET( MainWin_MOC_HDRS 	src/UI/CranioViewer.h
 						src/UI/MorphingViewer.h
@@ -57,6 +58,7 @@ SET( MainWin_MOC_HDRS 	src/UI/CranioViewer.h
 						src/UI/TrWidget.h 
 						src/UI/MainViewer.h 
 						src/UI/VTKEventHandler.h
+						src/UI/DistMapConfigDialog.h
 						src/Alg/ICP/ICPWrapper.h 
 						src/Alg/NonRigid/NonRigidWrapper.h
 						)
