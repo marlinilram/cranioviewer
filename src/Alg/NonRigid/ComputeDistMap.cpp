@@ -232,6 +232,7 @@ void ComputeDistMap::computeFinalDistMap()
     int *dims = bone_img->GetDimensions();
     float *out_ptr = static_cast<float *>(outside->GetScalarPointer());
     float *in_ptr = static_cast<float *>(inside->GetScalarPointer());
+    float stop_val = criterion->GetThreshold();
     for (size_t k = 0; k < dims[2]; ++k)
     {
         for (size_t j = 0; j < dims[1]; ++j)
@@ -240,10 +241,10 @@ void ComputeDistMap::computeFinalDistMap()
             {
                 if (*out_ptr == 1.0)
                 {   
-                    *out_ptr = 1 - (*in_ptr);
+                    *out_ptr = 1 - ((*in_ptr) > stop_val ? (stop_val+1) : (*in_ptr));
                 }
                 else
-                    *out_ptr = (*out_ptr) - 1;
+                    *out_ptr = ((*out_ptr) > stop_val ? (stop_val+1) : (*out_ptr)) - 1;
 
                 ++out_ptr;
                 ++in_ptr;

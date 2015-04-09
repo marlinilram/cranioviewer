@@ -3,6 +3,8 @@
 
 #include "Deform.h"
 #include "Mesh.h"
+#include "kdtree.h"
+
 #include <vtkImageData.h>
 #include <vtkSmartPointer.h>
 #include <vtkImageGradient.h>
@@ -44,6 +46,8 @@ public:
     void computeInflateDir(VectorXf &p_vec, VectorXf &g_vec);
     void inflateOptStep();
 
+    void buildKDTree(std::vector<double> &T_Pts);
+    void optStepNRICP();
 
 protected:
     MatrixX3f d_cur;
@@ -63,6 +67,9 @@ protected:
     int grad_max_iter;
 
     Mesh *mesh_data;
+
+    kdtree::KDTree *tree_target;
+    kdtree::KDTreeArray tree_data_target;
 };
 
 #endif

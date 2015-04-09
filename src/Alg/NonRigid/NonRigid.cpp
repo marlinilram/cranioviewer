@@ -2,12 +2,16 @@
 
 NonRigid::NonRigid()
 {
-
+  tree_target = nullptr;
 }
 
 NonRigid::~NonRigid()
 {
-
+  if (tree_target)
+  {
+    delete tree_target;
+    std::cout<<"Deleted KD Tree.\n";
+  }
 }
 
 double NonRigid::computeArap(VectorXf &p_vec, VectorXf &g_vec)
@@ -499,4 +503,32 @@ void NonRigid::computeInflateDir(VectorXf &p_vec, VectorXf &g_vec)
 
     g_vec = lamd_inflate*inflate_g + lamd_arap*arap_g + lamd_userCrsp*userCrsp_g;
     g_vec.normalize();
+}
+
+void NonRigid::buildKDTree(std::vector<double> &T_Pts)
+{
+  std::cout<<"\nBuilding KD Tree\n";
+  tree_data_target.resize(boost::extents[T_Pts.size()/3][3]);
+
+  for (size_t m = 0; m < T_Pts.size()/3; ++m)
+  {
+    for(size_t n = 0; n < 3; ++n)
+    {
+      tree_data_target[m][n] = (float)T_Pts[m*3+n];
+    }
+  }
+
+  if (tree_target)
+  {
+    delete tree_target;
+    std::cout<<"Deleted KD Tree.\n";
+  }
+
+  tree_target = new kdtree::KDTree(tree_data_target);
+  std::cout<<"Building KD Tree finished\n";
+}
+
+void NonRigid::optStepNRICP()
+{
+
 }

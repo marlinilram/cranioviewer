@@ -44,7 +44,6 @@ void MainViewer::setImgData(vtkSmartPointer<vtkImageData> data)
     image_slices[2] = new ImageSlice(data, "XY", renderer, false);
 
     show_slices = true;
-
 }
 
 void MainViewer::setImgData(std::string fName)

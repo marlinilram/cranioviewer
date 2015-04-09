@@ -372,6 +372,12 @@ void CranioViewer::nonRigidIter()
 
 void CranioViewer::loadOutDistMap()
 {
+    if (main_viewer->getImgData())
+    {
+      int voxel_num = 0;
+      //non_rigid->getNonRigid()->buildKDTree(main_viewer->getImgData()->extractSkullVertex(550, 450, voxel_num));
+    }
+
     QString filter;
     filter = "vti image file (*.vti)";
 
@@ -538,4 +544,8 @@ void CranioViewer::computeDistMap()
     }
 
     updateRenderers();
+
+    non_rigid->getNonRigid()->setDistMap(distmap.getDistMap());
+    if (main_viewer->getMeshData())
+      non_rigid->getNonRigid()->setMesh(main_viewer->getMeshData());
 }
