@@ -8,6 +8,7 @@
 5. Morphing between registered meshes
 
 !!!New!!! Video illustrating the current system.
+<br>
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=P7ZnMbBMFgU" target="_blank">
 <img src="http://img.youtube.com/vi/P7ZnMbBMFgU/0.jpg" alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" />
 </a>
