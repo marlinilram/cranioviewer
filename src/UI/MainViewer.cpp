@@ -15,12 +15,17 @@ MainViewer::MainViewer()
     show_volume = false;
     show_mesh = false;
     show_slices = false;
+
+    axis = vtkSmartPointer<vtkAxesActor>::New();
+    axis->SetTotalLength(20,20,20);
 }
 
 MainViewer::~MainViewer()
 {
     clearImage();
     clearMesh();
+
+    renderer->RemoveActor(axis);
     std::cout<<"delete main viewer finished\n";
 }
 
@@ -46,6 +51,15 @@ void MainViewer::setImgData(vtkSmartPointer<vtkImageData> data)
     show_slices = true;
 }
 
+
+void MainViewer::addImgData(vtkSmartPointer<vtkImageData> data)
+{
+  image_slices[0]->addImgData(data);
+  image_slices[1]->addImgData(data);
+  image_slices[2]->addImgData(data);
+
+  show_slices = true;
+}
 void MainViewer::setImgData(std::string fName)
 {
     // set img data
@@ -63,6 +77,7 @@ void MainViewer::setImgData(std::string fName)
 void MainViewer::setRenderer(vtkSmartPointer<vtkRenderer> mainWin_renderer)
 {
     renderer = mainWin_renderer;
+    renderer->AddActor(axis);
 }
 
 void MainViewer::setMeshData(std::string fName)
@@ -219,6 +234,27 @@ void MainViewer::updateVolumeView()
 
         emit(updateRenderers());
     }
+}
+
+void MainViewer::showMesh(int state)
+{
+  if (temp_mesh)
+  {
+    temp_mesh->setVisible(state);
+    emit(updateRenderers());
+  }
+}
+
+void MainViewer::showImage(int state)
+{
+  if (nii_img)
+  {
+    for (int i = 0; i < 3; ++i)
+    {
+      image_slices[i]->setVisible(state);
+    }
+    emit(updateRenderers());
+  }
 }
 
 void MainViewer::saveMesh(std::string f_name)

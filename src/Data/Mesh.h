@@ -10,10 +10,12 @@
 #include <vtkTransform.h>
 #include <vtkCenterOfMass.h>
 #include <vtkKdTreePointLocator.h>
+#include <vtkLineSource.h>
 #include <vtkSphereSource.h>
 #include <vtkProperty.h>
 #include <string>
 #include <ctime>
+#include <map>
 
 #include "vtkOBJWriter.h"
 
@@ -37,6 +39,12 @@ public:
     void setMeshCenter(double new_center[3] = nullptr);
     void setKDTreeLocator();
     int getClosestPtID(double world_coord[3]);
+    void setVisible(int state);
+    void getWorldCoord(double x, double y, double coord[3] = nullptr);
+    int pickVertex(double x, double y);
+    void markRegion(vtkIdType centerId, int nRing);
+    std::map<vtkIdType, int>& getMarkRegion();
+    std::vector<int>& getMarkRegionBound();
 
 private:
     void computeCenter(double bounds[6]);
@@ -51,6 +59,8 @@ private:
     vtkSmartPointer<vtkKdTreePointLocator> kdtree_picker;
 
     double mesh_center[3];
+    std::map<vtkIdType, int> mapMarkReg;
+    std::vector<int> markRegBound;
 };
 
 #endif

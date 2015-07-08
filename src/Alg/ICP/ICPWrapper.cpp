@@ -75,6 +75,7 @@ void ICPWrapper::setTargetData(std::vector<double> &data)
     }
 
     icp_pt_pt = new IcpPointToPoint(&data[0], data.size()/3, 3);
+    data.clear();
 }
 
 void ICPWrapper::setImage(NiiLoader *img)
@@ -82,11 +83,17 @@ void ICPWrapper::setImage(NiiLoader *img)
     nii_img = img;
 }
 
-void ICPWrapper::runICP()
+void ICPWrapper::runICP(int isoval, int isowidth)
 {
     int iso_val = 120;
-    int iso_width = 20 ;
+    int iso_width = 20;
     int voxel_num = 0;
+    if (isoval != 0 && isowidth != 0)
+    {
+      iso_val = isoval;
+      iso_width = isowidth;
+    }
+
     setTargetData(nii_img->extractSkullVertex(iso_val, iso_width, voxel_num));
 
     if (icp_pt_pt->checkWorkable()) {

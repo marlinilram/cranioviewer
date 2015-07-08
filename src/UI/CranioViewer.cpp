@@ -1,5 +1,7 @@
 #include "CranioViewer.h"
 
+#include <vtkImageGradientMagnitude.h>
+
 CranioViewer::CranioViewer()
 {
     setupUi(this);
@@ -34,11 +36,9 @@ CranioViewer::CranioViewer()
     connect( actionControlPanel, SIGNAL( triggered() ), this, SLOT( showControlPanel() ) );
     connect( actionMorphingViewer, SIGNAL( triggered() ), this, SLOT( showMorphingViewer() ) );
     connect( dist_map_config, SIGNAL( accepted() ), this, SLOT( computeDistMap() ) );
-
     connect( m_PushButtonICP, SIGNAL( clicked() ), this, SLOT( runICP() ) );
-    connect( m_PushButtonNonRigidIter, SIGNAL( clicked() ), this, SLOT( nonRigidIter() ) );
     connect( pushButtonInflateIter, SIGNAL( clicked() ), this, SLOT( inflateIter() ) );
-    connect( m_PushButtonNonRigid, SIGNAL( clicked() ), this, SLOT( loadOutDistMap() ) );
+    connect( m_PushButtonNonRigidInit, SIGNAL( clicked() ), this, SLOT( loadOutDistMap() ) );
 
     setSliceUIWidget();
     setTransUIWidget();
@@ -178,7 +178,7 @@ void CranioViewer::setSliceUIWidget()
 
     m_CheckBoxShowCTData->setCheckable(true);
     m_CheckBoxShowCTData->setChecked(true);
-    m_PushButtonClrCTData->setEnabled(true);
+    m_PushButtonTogImg->setEnabled(true);
     
     connect( m_YZSlider, SIGNAL( sliderMoved( int ) ), image_slice_widgets[0], SLOT( updatePlaneView( int ) ) );
     connect( m_YZSlider, SIGNAL( valueChanged( int ) ), image_slice_widgets[0], SLOT( updatePlaneView( int ) ) );
@@ -207,6 +207,24 @@ void CranioViewer::setSliceUIWidget()
     connect( m_ISOValSlider, SIGNAL( valueChanged( int ) ), m_ISOValSpinBox, SLOT( setValue( int ) ) );
     connect( m_ISOWidthSpinBox, SIGNAL( valueChanged( int ) ), main_viewer, SLOT( updateISOWidth( int ) ) );
 
+    // set mesh control widget
+    connect( m_CheckBoxShowSkull, SIGNAL( stateChanged( int ) ), main_viewer, SLOT( showMesh( int ) ) );
+
+    // set show image
+    connect( m_CheckBoxShowCTData, SIGNAL( stateChanged( int ) ), main_viewer, SLOT( showImage( int ) ) );
+    
+    for (size_t i = 0; i < 3; ++i)
+    {
+      // set intersection thickness
+      connect( m_IntersectionThickSlider, SIGNAL( sliderMoved( int ) ), image_slice_widgets[i], SLOT( setIntersectionThick( int ) ) );
+
+      // set image display
+      connect( m_PushButtonTogImg, SIGNAL( clicked() ), image_slice_widgets[i], SLOT( toggleImgDisp() ) );
+      connect( m_SliderColorWin, SIGNAL( valueChanged(int) ), image_slice_widgets[i], SLOT( setSliceColorWin(int) ) );
+      connect( m_SliderColorWin, SIGNAL( sliderMoved(int) ), image_slice_widgets[i], SLOT( setSliceColorWin(int) ) );
+      connect( m_SliderColorLev, SIGNAL( valueChanged(int) ), image_slice_widgets[i], SLOT( setSliceColorLev(int) ) );
+      connect( m_SliderColorLev, SIGNAL( sliderMoved(int) ), image_slice_widgets[i], SLOT( setSliceColorLev(int) ) );
+    }
 }
 
 void CranioViewer::loadMesh()
@@ -304,7 +322,7 @@ void CranioViewer::runICP()
         icp->setTempData(main_viewer->getMeshData());
         icp->setImage(main_viewer->getImgData());
         icp->setIter(spinBoxRigidIter->value());
-        icp->runICP();
+        icp->runICP(main_viewer->getVolumeData()->getISOVal(), main_viewer->getVolumeData()->getISOWidth());
 
         disconnect( icp, SIGNAL( resetTrans() ), this, SLOT( resetTrans() ) );
         disconnect( icp, SIGNAL( updateRenderers() ), this, SLOT( updateRenderers() ) );
@@ -330,6 +348,10 @@ void CranioViewer::setVTKEventHandler()
     event_handler->setMainViewer(main_viewer);
 
     connect( m_PushButtonAddCrsp, SIGNAL( clicked() ), event_handler, SLOT( initUserCrsp() ) );
+
+    connect( actionSelectMode, SIGNAL( triggered() ), event_handler, SLOT( selectMode() ) );
+    connect( actionRegionMoveMode, SIGNAL( triggered() ), event_handler, SLOT( regionMoveMode() ) );
+    connect( m_CheckBoxLocalSmooth, SIGNAL( stateChanged( int ) ), event_handler, SLOT( setLocalSmooth( int ) ) );
 }
 
 void CranioViewer::resetTrans()
@@ -372,67 +394,84 @@ void CranioViewer::nonRigidIter()
 
 void CranioViewer::loadOutDistMap()
 {
-    if (main_viewer->getImgData())
-    {
-      int voxel_num = 0;
-      //non_rigid->getNonRigid()->buildKDTree(main_viewer->getImgData()->extractSkullVertex(550, 450, voxel_num));
-    }
+    //if (main_viewer->getImgData())
+    //{
+    //  int voxel_num = 0;
+    //  //non_rigid->getNonRigid()->buildKDTree(main_viewer->getImgData()->extractSkullVertex(550, 450, voxel_num));
+    //}
 
-    QString filter;
-    filter = "vti image file (*.vti)";
+    //QString filter;
+    //filter = "vti image file (*.vti)";
 
-    QDir dir;
-    QString fileName = QFileDialog::getOpenFileName( this, QString(tr("Open Image")), dir.absolutePath() , filter );
-    if ( fileName.isEmpty() == true ) return;
+    //QDir dir;
+    //QString fileName = QFileDialog::getOpenFileName( this, QString(tr("Open Image")), dir.absolutePath() , filter );
+    //if ( fileName.isEmpty() == true ) return;
 
-    // 支持带中文路径的读取
-    QByteArray ba = fileName.toLocal8Bit();
-    const char *fileName_str = ba.data();
+    //// 支持带中文路径的读取
+    //QByteArray ba = fileName.toLocal8Bit();
+    //const char *fileName_str = ba.data();
 
-    vtkSmartPointer<vtkXMLImageDataReader> reader = vtkSmartPointer<vtkXMLImageDataReader>::New();
-    reader->SetFileName(fileName_str);
-    reader->Update();
+    //vtkSmartPointer<vtkXMLImageDataReader> reader = vtkSmartPointer<vtkXMLImageDataReader>::New();
+    //reader->SetFileName(fileName_str);
+    //reader->Update();
 
-    vtkSmartPointer<vtkImageData> dist_map = vtkSmartPointer<vtkImageData>::New();
-    dist_map->DeepCopy(reader->GetOutput());
+    ////vtkSmartPointer<vtkImageData> dist_map = vtkSmartPointer<vtkImageData>::New();
+    ////dist_map->DeepCopy(reader->GetOutput());
+    ////vtkSmartPointer<vtkImageData> dist_map = (reader->GetOutput());
 
-    main_viewer->clearImage();
-    for (size_t i = 0; i < 3; ++i)
-    {
-        image_slice_widgets[i]->clearSlice();
-        image_slice_widgets[i]->clearIntersector();
-    }
-    // reinit
-    initVTKWin();
-    main_viewer->setRenderer(m_3DViewerRenderer);
-    main_viewer->setImgData(dist_map);
+    ////main_viewer->clearImage();
+    ////for (size_t i = 0; i < 3; ++i)
+    ////{
+    ////    image_slice_widgets[i]->clearSlice();
+    ////    image_slice_widgets[i]->clearIntersector();
+    ////}
+    ////// reinit
+    ////initVTKWin();
+    ////main_viewer->setRenderer(m_3DViewerRenderer);
+    ////main_viewer->setImgData(reader->GetOutput());
 
-    std::string orients[3] = {"YZ", "XZ", "XY"};
-    vtkSmartPointer<vtkRenderer> plane_renderers[3]=
-    {m_YZViewerRenderer, m_XZViewerRenderer, m_XYViewerRenderer};
-    for (size_t i = 0; i < 3; ++i)
-    {
-        image_slice_widgets[i]->setSlice(dist_map, orients[i], plane_renderers[i]);
-        image_slice_widgets[i]->setSliceColorWin(10.0);
-        image_slice_widgets[i]->setSliceColorLev(0.0);
-        //double lut_range[2] = {-5.0, 5.0};
-        //image_slice_widgets[i]->setSliceLUT(lut_range);
-    }
+    ////std::string orients[3] = {"YZ", "XZ", "XY"};
+    ////vtkSmartPointer<vtkRenderer> plane_renderers[3]=
+    ////{m_YZViewerRenderer, m_XZViewerRenderer, m_XYViewerRenderer};
+    ////for (size_t i = 0; i < 3; ++i)
+    ////{
+    ////    image_slice_widgets[i]->setSlice(reader->GetOutput(), orients[i], plane_renderers[i]);
+    ////    image_slice_widgets[i]->setSliceColorWin(10.0);
+    ////    image_slice_widgets[i]->setSliceColorLev(0.0);
+    ////    //double lut_range[2] = {-5.0, 5.0};
+    ////    //image_slice_widgets[i]->setSliceLUT(lut_range);
+    ////}
 
+    ////if (main_viewer->getMeshData())
+    ////{
+    ////    for (size_t i = 0; i < 3; ++i)
+    ////    {
+    ////        image_slice_widgets[i]->setMesh(main_viewer->getMeshData());
+    ////    }
+    ////    main_viewer->getMeshData()->setRenderer(m_3DViewerRenderer);
+    ////}
+
+    //for (size_t i = 0; i < 3; ++i)
+    //{
+    //    image_slice_widgets[i]->addSlice(reader->GetOutput());
+    //    //image_slice_widgets[i]->setSliceColorWin(10.0);
+    //    //image_slice_widgets[i]->setSliceColorLev(0.0);
+    //    //double lut_range[2] = {-5.0, 5.0};
+    //    //image_slice_widgets[i]->setSliceLUT(lut_range);
+    //}
+    ////updateRenderers();
+
+    //std::cout<<"dist_map ref count: "<<reader->GetOutput()->GetReferenceCount()<<"\n";
+    //non_rigid->getNonRigid()->setDistMap(reader->GetOutput());
+    //std::cout<<"dist_map ref count: "<<reader->GetOutput()->GetReferenceCount()<<"\n";
+    non_rigid->getNonRigid()->setScalarImg(main_viewer->getImgData()->getData());
+    non_rigid->setMainViewer(main_viewer);
+    non_rigid->initMCKDTree(m_ISOValSpinBox->value());
     if (main_viewer->getMeshData())
     {
-        for (size_t i = 0; i < 3; ++i)
-        {
-            image_slice_widgets[i]->setMesh(main_viewer->getMeshData());
-        }
-        main_viewer->getMeshData()->setRenderer(m_3DViewerRenderer);
+      non_rigid->getNonRigid()->setMesh(main_viewer->getMeshData());
+      event_handler->setNonRigid(non_rigid);
     }
-
-    updateRenderers();
-
-    non_rigid->getNonRigid()->setDistMap(dist_map);
-    if (main_viewer->getMeshData())
-        non_rigid->getNonRigid()->setMesh(main_viewer->getMeshData());
 }
 
 void CranioViewer::saveMesh()
@@ -482,7 +521,7 @@ void CranioViewer::inflateIter()
 {
     size_t n_iter = spinBoxOutIter->value();
 
-    non_rigid->getNonRigid()->setGradMaxIter(spinBoxOutIter->value());
+    non_rigid->getNonRigid()->setGradMaxIter(spinBoxInIter->value());
 
     non_rigid->getNonRigid()->setLamdInflate(doubleSpinBoxLamdDist->value());
 
@@ -494,10 +533,16 @@ void CranioViewer::inflateIter()
 
     non_rigid->getNonRigid()->setUserCrsp(event_handler->getPickedIds(), event_handler->getCrspPos());
 
+    non_rigid->getNonRigid()->setVisCrspLines(m_CheckBoxVisCrsp->isChecked());
 
-    for (size_t i = 0; i < n_iter; ++i)
+
+    for (size_t i = 0; i < 1; ++i)
     {
-        non_rigid->getNonRigid()->inflateOptStep();
+        //non_rigid->getNonRigid()->inflateOptStep();
+        non_rigid->getNonRigid()->refineOptStep2();
+        non_rigid->setRenderer(m_3DViewerRenderer);
+        if (m_CheckBoxVisCrsp->isChecked()) non_rigid->drawCrspLines();
+        else non_rigid->clearCrspLines();
         updateRenderers();
     }
 }
@@ -512,6 +557,10 @@ void CranioViewer::computeDistMap()
         distmap.gaussianSmooth(main_viewer->getImgData()->getData());
     else
         distmap.computeFinalDistMap();
+
+    vtkSmartPointer<vtkImageGradientMagnitude> nii_gm = vtkSmartPointer<vtkImageGradientMagnitude>::New();
+    
+
 
     main_viewer->clearImage();
     for (size_t i = 0; i < 3; ++i)

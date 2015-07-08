@@ -254,8 +254,9 @@ void ComputeDistMap::computeFinalDistMap()
     end = std::clock();
     std::cout<<"output dims: "<<outside->GetDimensions()[0]<<"\t"<<outside->GetDimensions()[1]<<"\t"<<outside->GetDimensions()[2]<<"\n";
     std::cout<<"compute final dist map finished. Elapsed time: "<<double(end-begin)/CLOCKS_PER_SEC<<"\n";
-    dist_map = vtkSmartPointer<vtkImageData>::New();
-    dist_map->DeepCopy(outside);
+    //dist_map = vtkSmartPointer<vtkImageData>::New();
+    //dist_map->DeepCopy(outside);
+    dist_map = outside;
 }
 
 void ComputeDistMap::setVTKImg(vtkSmartPointer< vtkImageData> img_data, double mid_interval, double wid_interval)
@@ -263,12 +264,12 @@ void ComputeDistMap::setVTKImg(vtkSmartPointer< vtkImageData> img_data, double m
     bone_img = img_data;
     if (mid_interval != 0 && mid_interval != 0)
     {
-        max_interval = mid_interval + wid_interval;
+        max_interval = std::numeric_limits<double>::max();
         min_interval = mid_interval - wid_interval;
     }
     else
     {
-        max_interval = 1000;
+        max_interval = std::numeric_limits<double>::max();
         min_interval = 100;
     }
 
@@ -493,6 +494,7 @@ void ComputeDistMap::gaussianSmooth(vtkSmartPointer<vtkImageData> img)
     bone_img = vtkSmartPointer<vtkImageData>::New();
     bone_img->DeepCopy(connector->GetOutput());
 
-    min_interval = 1.0;
+    //min_interval = 1.0;
     computeFinalDistMap();
+    //dist_map = bone_img;
 }

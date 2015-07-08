@@ -33,6 +33,7 @@ public:
     void setCutter();
     void getWorldCoord(double x, double y, double coord[3] = nullptr);
     vtkSmartPointer<vtkRenderer> getRenderer() { return renderer; };
+    void setThickness(int value);
 
 private:
     vtkSmartPointer<vtkPolyDataMapper> mapper;

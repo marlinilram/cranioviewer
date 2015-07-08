@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QSlider>
 #include <vtkXMLImageDataWriter.h>
+#include <vtkAxesActor.h>
 #include "ImageSlice.h"
 #include "Mesh.h"
 #include "Volume.h"
@@ -22,8 +23,10 @@ public:
     void setImgData(NiiLoader *data);
     void setImgData(std::string fName);
     void setImgData(vtkSmartPointer<vtkImageData> data);
+    void addImgData(vtkSmartPointer<vtkImageData> data);
     void setMeshData(std::string fName);
     void setRenderer(vtkSmartPointer<vtkRenderer> mainWin_renderer);
+    vtkSmartPointer<vtkRenderer> getRenderer() { return renderer; };
     NiiLoader *getImgData() { return nii_img; };
     Mesh *getMeshData() { return temp_mesh; };
     Volume *getVolumeData() { return img_volume; };
@@ -44,6 +47,8 @@ private slots:
     void updateISOVal(int value);
     void updateISOWidth(int value);
     void showVolume(int state);
+    void showMesh(int state);
+    void showImage(int state);
 
 signals:
     void updateRenderers();
@@ -60,6 +65,7 @@ private:
 
     // viewer handler
     vtkSmartPointer<vtkRenderer> renderer;
+    vtkSmartPointer<vtkAxesActor> axis;
 
     // bool controller
     bool show_volume;

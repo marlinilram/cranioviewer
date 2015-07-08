@@ -36,7 +36,7 @@ public:
 
 	std::vector<double>& extractSkullVertex(int v, int t, int& num);
 	void getUnique(vector<signed short> &u);
-	vtkSmartPointer< vtkPolyData > mcSkullVertex(vector<double> &T_Pts, vector<double> &T_Norms, double isovalue);
+	vtkSmartPointer< vtkPolyData > mcSkullVertex(vector<double> &T_Pts, vector<double> &T_Norms, double isovalue, int sample_ratio = 3);
 
 private:
 	vtkSmartPointer<vtkImageData> niiImg;

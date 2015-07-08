@@ -31,7 +31,7 @@ public:
    void setUserTrans(vtkSmartPointer<vtkMatrix4x4> mat);
    void setImage(NiiLoader *img);
    void runICPStep();
-   void runICP();
+   void runICP(int isoval, int isowidth);
    void setIter(int n_iter) { max_iter = n_iter; };
 
 signals:

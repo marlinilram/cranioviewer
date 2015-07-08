@@ -16,6 +16,7 @@ public:
     void doLinearMorphing(double *paras, int n_paras);
     Mesh *getMeshPtr(size_t i_mesh) { return meshes[i_mesh]; };
     void setCenterMesh(size_t i_mesh);
+    inline size_t getMeshSize() { return meshes.size(); };
 
 private:
     std::vector<Mesh *> meshes;

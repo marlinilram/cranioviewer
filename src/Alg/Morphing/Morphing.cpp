@@ -45,3 +45,15 @@ void Morphing::addMeshVec(std::vector<double> &mesh_vec)
 {
     meshes_vec.push_back(mesh_vec);
 }
+
+void Morphing::alignMeshes()
+{
+  ShapeMatch *shape_match;
+  shape_match = new ShapeMatch;
+
+  shape_match->setTemplate(meshes_vec[0]);
+  for (size_t i = 1; i < meshes_vec.size(); ++i)
+  {
+    shape_match->setTarget(meshes_vec[i]);
+  }
+}

@@ -1,5 +1,13 @@
 #include "Mesh.h"
 
+#include <vtkCellData.h>
+#include <vtkFloatArray.h>
+#include <vtkIdList.h>
+#include <vtkLookupTable.h>
+#include <vtkPointData.h>
+#include <vtkPointPicker.h>
+#include <vtkWorldPointPicker.h>
+
 Mesh::Mesh()
 {
     mapper = nullptr;
@@ -37,8 +45,53 @@ void Mesh::setMeshData(std::string fName)
     obj_reader->SetFileName(fName.c_str());
     obj_reader->Update();
 
+    vtkSmartPointer<vtkLookupTable> colorLut = vtkSmartPointer<vtkLookupTable>::New();
+    colorLut->SetNumberOfTableValues(10);
+    colorLut->Build();
+
+    // Fill in a few known colors, the rest will be generated if needed
+    colorLut->SetTableValue(0     , 0     , 0     , 0, 1);  //Black
+    colorLut->SetTableValue(1, 0.8900, 0.8100, 0.3400, 1); // Banana
+    colorLut->SetTableValue(2, 1.0000, 0.3882, 0.2784, 1); // Tomato
+    colorLut->SetTableValue(3, 0.9608, 0.8706, 0.7020, 1); // Wheat
+    colorLut->SetTableValue(4, 0.9020, 0.9020, 0.9804, 1); // Lavender
+    colorLut->SetTableValue(5, 1.0000, 0.4900, 0.2500, 1); // Flesh
+    colorLut->SetTableValue(6, 0.5300, 0.1500, 0.3400, 1); // Raspberry
+    colorLut->SetTableValue(7, 0.9804, 0.5020, 0.4471, 1); // Salmon
+    colorLut->SetTableValue(8, 0.7400, 0.9900, 0.7900, 1); // Mint
+    colorLut->SetTableValue(9, 0.2000, 0.6300, 0.7900, 1); // Peacock
+
+    colorLut->SetRange(0,10);
+
+    vtkSmartPointer<vtkUnsignedCharArray> cellColorId = vtkSmartPointer<vtkUnsignedCharArray>::New();
+    cellColorId->SetNumberOfComponents(1);
+    cellColorId->SetNumberOfTuples(obj_reader->GetOutput()->GetNumberOfCells());
+    for (int i = 0; i < cellColorId->GetNumberOfTuples(); ++i)
+    {
+      cellColorId->InsertTuple1(i, 1);
+    }
+
+    cellColorId->SetLookupTable(colorLut);
+    obj_reader->GetOutput()->GetCellData()->SetScalars(cellColorId);
+
+    vtkSmartPointer<vtkUnsignedCharArray> ptColorId = vtkSmartPointer<vtkUnsignedCharArray>::New();
+    ptColorId->SetNumberOfComponents(1);
+    ptColorId->SetNumberOfTuples(obj_reader->GetOutput()->GetNumberOfPoints());
+    for (int i = 0; i < ptColorId->GetNumberOfTuples(); ++i)
+    {
+      ptColorId->InsertTuple1(i, 9);
+    }
+
+    ptColorId->SetLookupTable(colorLut);
+    obj_reader->GetOutput()->GetPointData()->SetScalars(ptColorId);
+
     mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputData(obj_reader->GetOutput());
+
+    mapper->SetScalarModeToUseCellData();
+    mapper->SetColorModeToMapScalars();
+    mapper->UseLookupTableScalarRangeOn();
+    mapper->ScalarVisibilityOn();
 
     actor = vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
@@ -97,6 +150,18 @@ void Mesh::reloadTransform()
     //mat->Print(std::cout);
 }
 
+void Mesh::setVisible(int state)
+{
+  if (state)
+  {
+    actor->VisibilityOn();
+  }
+  else
+  {
+    actor->VisibilityOff();
+  }
+}
+
 void Mesh::resetMesh(vtkSmartPointer<vtkPolyData> new_mesh_data)
 {
     renderer->RemoveActor(actor);
@@ -135,26 +200,105 @@ int Mesh::getClosestPtID(double world_coord[3])
         double *vertex_coord;
         vertex_coord = mapper->GetInput()->GetPoint(vertex_id);
 
-        //Create a sphere
-        vtkSmartPointer<vtkSphereSource> sphereSource =
-            vtkSmartPointer<vtkSphereSource>::New();
-        sphereSource->SetCenter(vertex_coord[0], vertex_coord[1], vertex_coord[2]);
-        sphereSource->SetRadius(1.0);
-
-        //Create a mapper and actor
-        vtkSmartPointer<vtkPolyDataMapper> pick_mapper =
-            vtkSmartPointer<vtkPolyDataMapper>::New();
-        pick_mapper->SetInputConnection(sphereSource->GetOutputPort());
-
-        vtkSmartPointer<vtkActor> pick_actor =
-            vtkSmartPointer<vtkActor>::New();
-        pick_actor->SetMapper(pick_mapper);
-        pick_actor->GetProperty()->SetDiffuseColor(0.0, 1.0, 1.0);
-
-        renderer->AddActor(pick_actor);
-
         return vertex_id;
     }
 
     return -1;
+}
+
+void Mesh::getWorldCoord(double x, double y, double coord[3])
+{
+  vtkSmartPointer<vtkWorldPointPicker> picker = vtkSmartPointer<vtkWorldPointPicker>::New();
+  picker->AddPickList(actor);
+  picker->PickFromListOn();
+  picker->Pick(x, y, 0.0, renderer);
+
+
+  double pos[3];
+  picker->GetPickPosition(pos);
+  //std::cout<<"picked position: "<<pos[0]<<"\t"<<pos[1]<<"\t"<<pos[2]<<"\n";
+
+  if (coord)
+  {
+    coord[0] = pos[0];
+    coord[1] = pos[1];
+    coord[2] = pos[2];
+  }
+}
+
+int Mesh::pickVertex(double x, double y)
+{
+  double coord[3];
+  this->getWorldCoord(x, y, coord);
+  int pickedId = this->getClosestPtID(coord);
+
+  mapper->GetInput()->GetPointData()->GetScalars()->InsertTuple1(pickedId, 1);
+  mapper->GetInput()->Modified();
+
+  return pickedId;
+}
+
+void Mesh::markRegion(vtkIdType centerId, int nRing)
+{
+  vtkPolyData* mesh = mapper->GetInput();
+  mesh->GetCellData()->GetScalars()->FillComponent(0, 1);
+  vtkSmartPointer<vtkIdList> cellIds = vtkSmartPointer<vtkIdList>::New();
+  vtkIdType nPts;
+  vtkIdType* pts;
+  std::vector<vtkIdType> centers;
+  mapMarkReg.clear();
+  markRegBound.clear();
+  std::map<vtkIdType, int>::iterator iter_mapPtIds;
+  mapMarkReg[centerId] = 0;
+  centers.push_back(centerId);
+  for (int i = 0; i < nRing; ++i)
+  {
+    std::vector<vtkIdType> newCenters;
+    for (int j = 0; j < centers.size(); ++j)
+    {
+      mesh->GetPointCells(centers[j], cellIds);
+      for (vtkIdType iCell = 0; iCell < cellIds->GetNumberOfIds(); ++iCell)
+      {
+        // draw all cell connecting to center vertex
+        if (i != nRing)
+        {
+          mesh->GetCellData()->GetScalars()->InsertTuple1(cellIds->GetId(iCell), 5);
+        }
+
+        // search i-Ring vertex set
+        // put them in to mapMarkReg
+        mesh->GetCellPoints(cellIds->GetId(iCell), nPts, pts);
+
+        for (vtkIdType iPt = 0; iPt < nPts; ++iPt)
+        {
+          iter_mapPtIds = mapMarkReg.find(pts[iPt]);
+          if (iter_mapPtIds == mapMarkReg.end())
+          {
+            if (i != nRing)
+            {
+              mapMarkReg[pts[iPt]] = i + 1;
+            }
+            else
+            {
+              markRegBound.push_back(pts[iPt]);
+            }
+            newCenters.push_back(pts[iPt]);
+            //mesh->GetPointData()->GetScalars()->InsertTuple1(pts[iPt], 5);
+          }
+        }
+      }
+    }
+    centers = newCenters;
+  }
+  mapper->GetInput()->Modified();
+}
+
+std::map<vtkIdType, int>& Mesh::getMarkRegion()
+{
+  return mapMarkReg;
+}
+
+std::vector<int>& Mesh::getMarkRegionBound()
+{
+  return markRegBound;
 }

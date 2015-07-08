@@ -35,7 +35,9 @@ void Volume::setRenderer(vtkSmartPointer<vtkRenderer> mainWin_renderer)
 void Volume::dispTargetVolume()
 {
     int voxel_num = 0;
-    std::vector<double> &voxel_data = nii_img->extractSkullVertex(isovalue, isowidth, voxel_num);
+    std::vector<double> voxel_data;// = nii_img->extractSkullVertex(isovalue, isowidth, voxel_num);
+    std::vector<double> voxel_norm;
+    nii_img->mcSkullVertex(voxel_data, voxel_norm, isovalue);
 
     std::cout<<"isovalue: "<<isovalue<<"\tisowidth: "<<isowidth<<"\tvoxel num: "<<voxel_num<<"\n";
 
@@ -59,6 +61,8 @@ void Volume::dispTargetVolume()
 
     actor = vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
+    actor->GetProperty()->SetPointSize(2);
+    actor->GetProperty()->SetDiffuseColor(0,1,1);
 
     renderer->AddActor(actor);
 }

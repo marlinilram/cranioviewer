@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1451</width>
-    <height>1067</height>
+    <height>1173</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,68 +20,175 @@
    <property name="layoutDirection">
     <enum>Qt::LeftToRight</enum>
    </property>
-   <layout class="QGridLayout" name="gridLayout" rowstretch="0" columnstretch="1,1">
+   <layout class="QGridLayout" name="gridLayout" rowstretch="0" columnstretch="1">
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,1">
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout_YZ">
-        <item>
-         <widget class="QVTKWidget" name="m_YZViewer"/>
-        </item>
-        <item>
-         <widget class="QSlider" name="m_YZSlider">
-          <property name="value">
-           <number>49</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QVTKWidget" name="m_3DViewer"/>
-      </item>
-     </layout>
-    </item>
-    <item row="0" column="1">
-     <layout class="QVBoxLayout" name="verticalLayout_8" stretch="1,1">
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout_XZ">
-        <item>
-         <widget class="QVTKWidget" name="m_XZViewer"/>
-        </item>
-        <item>
-         <widget class="QSlider" name="m_XZSlider">
-          <property name="value">
-           <number>49</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout_XY">
-        <item>
-         <widget class="QVTKWidget" name="m_XYViewer"/>
-        </item>
-        <item>
-         <widget class="QSlider" name="m_XYSlider">
-          <property name="value">
-           <number>49</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
+     <widget class="QMdiArea" name="mdiArea">
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="activationOrder">
+       <enum>QMdiArea::CreationOrder</enum>
+      </property>
+      <property name="viewMode">
+       <enum>QMdiArea::SubWindowView</enum>
+      </property>
+      <property name="documentMode">
+       <bool>false</bool>
+      </property>
+      <widget class="QWidget" name="subwindow3D">
+       <property name="windowTitle">
+        <string>3D</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <property name="horizontalSpacing">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1">
+          <item>
+           <widget class="QVTKWidget" name="m_3DViewer"/>
+          </item>
+         </layout>
         </item>
        </layout>
-      </item>
-     </layout>
+      </widget>
+      <widget class="QWidget" name="subwindowCoronal">
+       <property name="windowTitle">
+        <string>Coronal</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_5">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <layout class="QVBoxLayout" name="verticalLayout_8" stretch="1">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_XZ">
+            <item>
+             <widget class="QVTKWidget" name="m_XZViewer"/>
+            </item>
+            <item>
+             <widget class="QSlider" name="m_XZSlider">
+              <property name="value">
+               <number>49</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="subwindowSagital">
+       <property name="windowTitle">
+        <string>Sagital</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_6">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <layout class="QVBoxLayout" name="verticalLayout_YZ">
+          <item>
+           <widget class="QVTKWidget" name="m_YZViewer"/>
+          </item>
+          <item>
+           <widget class="QSlider" name="m_YZSlider">
+            <property name="value">
+             <number>49</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="subwindowTransverse">
+       <property name="windowTitle">
+        <string>Transverse</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_7">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <layout class="QVBoxLayout" name="verticalLayout_XY">
+          <item>
+           <widget class="QVTKWidget" name="m_XYViewer"/>
+          </item>
+          <item>
+           <widget class="QSlider" name="m_XYSlider">
+            <property name="value">
+             <number>49</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -124,6 +231,157 @@
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_7">
     <layout class="QGridLayout" name="gridLayout_4">
+     <item row="5" column="0">
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>300</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="4" column="0">
+      <widget class="QGroupBox" name="groupBox_3">
+       <property name="title">
+        <string>Registration</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_9">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="2,1">
+          <item>
+           <widget class="QPushButton" name="m_PushButtonICP">
+            <property name="text">
+             <string>Rigid</string>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="spinBoxRigidIter">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>500</number>
+            </property>
+            <property name="value">
+             <number>100</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="m_PushButtonNonRigidInit">
+          <property name="text">
+           <string>Non Rigid Init</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_17" stretch="1,1">
+          <item>
+           <widget class="QPushButton" name="m_PushButtonAddCrsp">
+            <property name="text">
+             <string>Manual Crsp</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButtonInflateIter">
+            <property name="text">
+             <string>Refine Iter</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_15" stretch="1,1">
+          <item>
+           <widget class="QCheckBox" name="m_CheckBoxLocalSmooth">
+            <property name="text">
+             <string>Local Smooth</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="m_CheckBoxVisCrsp">
+            <property name="text">
+             <string>Show Crsp</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_10">
+          <item>
+           <widget class="QSpinBox" name="spinBoxOutIter">
+            <property name="maximum">
+             <number>999</number>
+            </property>
+            <property name="value">
+             <number>25</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="spinBoxInIter">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="value">
+             <number>50</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="doubleSpinBoxGradStep">
+            <property name="value">
+             <double>5.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <widget class="QDoubleSpinBox" name="doubleSpinBoxLamdDist">
+            <property name="value">
+             <double>3.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="doubleSpinBoxLamdArap">
+            <property name="value">
+             <double>10.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="doubleSpinBoxLamdUserCrsp">
+            <property name="value">
+             <double>25.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
      <item row="0" column="0">
       <widget class="QGroupBox" name="groupBox">
        <property name="title">
@@ -451,21 +709,6 @@
         <string>Setting</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_7">
-        <property name="spacing">
-         <number>5</number>
-        </property>
-        <property name="leftMargin">
-         <number>3</number>
-        </property>
-        <property name="topMargin">
-         <number>3</number>
-        </property>
-        <property name="rightMargin">
-         <number>3</number>
-        </property>
-        <property name="bottomMargin">
-         <number>3</number>
-        </property>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,1">
           <item>
@@ -529,34 +772,51 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="m_PushButtonClrCTData">
+           <widget class="QPushButton" name="m_PushButtonTogImg">
             <property name="text">
-             <string>Clear CT Data</string>
+             <string>Toggle Image Data</string>
             </property>
            </widget>
           </item>
          </layout>
         </item>
         <item>
-         <widget class="QCheckBox" name="m_CheckBoxShowIntersection">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Show Intersection</string>
-          </property>
-          <property name="checkable">
-           <bool>false</bool>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_12">
+          <item>
+           <widget class="QCheckBox" name="m_CheckBoxShowIntersection">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Show Intersection</string>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSlider" name="m_IntersectionThickSlider">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>20</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
      </item>
-     <item row="2" column="0">
+     <item row="3" column="0">
       <widget class="QGroupBox" name="groupBox_4">
        <property name="title">
         <string>Volume Disp</string>
@@ -610,138 +870,78 @@
        </layout>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QGroupBox" name="groupBox_3">
+     <item row="2" column="0">
+      <widget class="QGroupBox" name="groupBox_5">
        <property name="title">
-        <string>Registration</string>
+        <string>GroupBox</string>
        </property>
-       <layout class="QGridLayout" name="gridLayout_3">
-        <item row="3" column="0">
-         <widget class="QPushButton" name="m_PushButtonAddCrsp">
-          <property name="text">
-           <string>Manually Set Correspondences</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QPushButton" name="m_PushButtonNonRigidIter">
-          <property name="text">
-           <string>Non Rigit Iter</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="2,1">
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_13">
           <item>
-           <widget class="QPushButton" name="m_PushButtonICP">
+           <widget class="QLabel" name="label">
             <property name="text">
-             <string>Rigid</string>
-            </property>
-            <property name="checkable">
-             <bool>false</bool>
-            </property>
-            <property name="checked">
-             <bool>false</bool>
+             <string>Color Win</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="spinBoxRigidIter">
-            <property name="minimum">
-             <number>1</number>
-            </property>
+           <widget class="QSlider" name="m_SliderColorWin">
             <property name="maximum">
-             <number>500</number>
+             <number>100</number>
             </property>
             <property name="value">
              <number>100</number>
             </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="5" column="0">
-         <layout class="QHBoxLayout" name="horizontalLayout_10">
-          <item>
-           <widget class="QSpinBox" name="spinBoxOutIter">
-            <property name="value">
-             <number>25</number>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="spinBoxInIter">
-            <property name="value">
-             <number>25</number>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QDoubleSpinBox" name="doubleSpinBoxGradStep">
-            <property name="value">
-             <double>0.010000000000000</double>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
            </widget>
           </item>
          </layout>
         </item>
-        <item row="1" column="0">
-         <widget class="QPushButton" name="m_PushButtonNonRigid">
-          <property name="text">
-           <string>Non Rigid</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_14">
           <item>
-           <widget class="QDoubleSpinBox" name="doubleSpinBoxLamdDist">
-            <property name="value">
-             <double>1.000000000000000</double>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Color Lev</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QDoubleSpinBox" name="doubleSpinBoxLamdArap">
-            <property name="value">
-             <double>10.000000000000000</double>
+           <widget class="QSlider" name="m_SliderColorLev">
+            <property name="maximum">
+             <number>100</number>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QDoubleSpinBox" name="doubleSpinBoxLamdUserCrsp">
             <property name="value">
-             <double>25.000000000000000</double>
+             <number>50</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
            </widget>
           </item>
          </layout>
-        </item>
-        <item row="4" column="0">
-         <widget class="QPushButton" name="pushButtonInflateIter">
-          <property name="text">
-           <string>Inflate Iter</string>
-          </property>
-         </widget>
         </item>
        </layout>
       </widget>
      </item>
-     <item row="4" column="0">
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>300</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
     </layout>
    </widget>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionSelectMode"/>
+   <addaction name="actionRegionMoveMode"/>
   </widget>
   <action name="m_OpenAction">
    <property name="text">
@@ -796,6 +996,16 @@
   <action name="actionLoadDistMap">
    <property name="text">
     <string>Load Dist Map</string>
+   </property>
+  </action>
+  <action name="actionSelectMode">
+   <property name="text">
+    <string>Select Mode</string>
+   </property>
+  </action>
+  <action name="actionRegionMoveMode">
+   <property name="text">
+    <string>Region Move Mode</string>
    </property>
   </action>
  </widget>

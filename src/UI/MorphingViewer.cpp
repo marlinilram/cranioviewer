@@ -47,7 +47,7 @@ void MorphingViewer::addMesh()
     }
     morphing_renderer->ResetCamera();
     morphing_wrapper->setCenterMesh(0);
-    morphing_wrapper->getMorphingHandler()->computeTransform();
+    //morphing_wrapper->getMorphingHandler()->computeTransform();
     updateRenderer();
 }
 
@@ -62,7 +62,14 @@ void MorphingViewer::updateCurMorph(int val)
     morph_paras[1] = (double)val / sliderMorphing->maximum();
     morph_paras[0] = 1-morph_paras[1];
 
-    morphing_wrapper->doLinearMorphing(morph_paras, 2);
+    size_t n_mesh = morphing_wrapper->getMeshSize() - 1;
+    int mesh_id = morph_paras[1] * (n_mesh - 1);
+    morph_paras[1] = (morph_paras[1] * (n_mesh - 1) - mesh_id);
+    morph_paras[0] = 1-morph_paras[1];
+
+    std::cout<<morph_paras[0]<<"\t"<<morph_paras[1]<<mesh_id<<"\n";
+
+    morphing_wrapper->doLinearMorphing(morph_paras, mesh_id);
     updateRenderer();
 }
 

@@ -1,13 +1,15 @@
 #include "Intersector.h"
 
+#include <vtkCellData.h>
+
 Intersector::Intersector()
 {
-    mapper = nullptr;
-    actor = nullptr;
+    transform_filter = vtkSmartPointer< vtkTransformPolyDataFilter >::New();
+    cutter = vtkSmartPointer< vtkCutter >::New();
+    stripper = vtkSmartPointer< vtkStripper >::New();
+    mapper = vtkSmartPointer< vtkPolyDataMapper >::New();
+    actor = vtkSmartPointer<vtkActor>::New();
     renderer = nullptr;
-    transform_filter = nullptr;
-    cutter = nullptr;
-    stripper = nullptr;
     mesh = nullptr;
     image_slice = nullptr;
 }
@@ -40,24 +42,26 @@ void Intersector::setRenderer(vtkSmartPointer<vtkRenderer> mainWin_renderer)
 
 void Intersector::setCutter()
 {
-    transform_filter = vtkSmartPointer< vtkTransformPolyDataFilter >::New();
     transform_filter->SetInputData(mesh->getMeshData());
     transform_filter->SetTransform(mesh->getTransform());
 
-    cutter = vtkSmartPointer< vtkCutter >::New();
     cutter->SetInputConnection(transform_filter->GetOutputPort());
     cutter->SetCutFunction(image_slice->getSliceMapper()->GetSlicePlane());
 
-    stripper = vtkSmartPointer< vtkStripper >::New();
     stripper->SetInputConnection(cutter->GetOutputPort());
+    stripper->PassCellDataAsFieldDataOn();
     stripper->Update();
 
-    mapper = vtkSmartPointer< vtkPolyDataMapper >::New();
     mapper->SetInputConnection(stripper->GetOutputPort());
+    mapper->SetScalarModeToUseFieldData();
+    mapper->SelectColorArray(0);
+    mapper->SetLookupTable(mesh->getMeshData()->GetCellData()->GetScalars()->GetLookupTable());
+    mapper->SetColorModeToMapScalars();
+    mapper->UseLookupTableScalarRangeOn();
+    mapper->ScalarVisibilityOn();
 
-    actor = vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
-    actor->GetProperty()->SetDiffuseColor(0.9, 0.447, 0.0745);
+    //actor->GetProperty()->SetDiffuseColor(0.9, 0.447, 0.0745);
 
     renderer->AddActor(actor);
 }
@@ -99,4 +103,9 @@ void Intersector::getWorldCoord(double x, double y, double coord[3])
     //pick_actor->GetProperty()->SetDiffuseColor(0.0, 1.0, 1.0);
 
     //renderer->AddActor(pick_actor);
+}
+
+void Intersector::setThickness(int value)
+{
+  actor->GetProperty()->SetLineWidth(value);
 }

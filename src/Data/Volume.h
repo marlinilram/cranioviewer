@@ -4,6 +4,7 @@
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
+#include <vtkProperty.h>
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkVertexGlyphFilter.h>

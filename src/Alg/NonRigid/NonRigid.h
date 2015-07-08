@@ -5,14 +5,6 @@
 #include "Mesh.h"
 #include "kdtree.h"
 
-#include <vtkImageData.h>
-#include <vtkSmartPointer.h>
-#include <vtkImageGradient.h>
-#include <vtkPointData.h>
-#include <vtkPoints.h>
-#include <vtkIdList.h>
-#include <limits>
-
 using namespace Eigen;
 
 class NonRigid : public Deform
@@ -25,7 +17,9 @@ public:
     double computeDistEnergy(VectorXf &p_vec, VectorXf &g_vec);
     double computeGradEnergy(VectorXf &p_vec, VectorXf &g_vec);
     void setdvec();
-    void setDistMap(vtkSmartPointer<vtkImageData> img); 
+    void setDistMap(vtkSmartPointer<vtkImageData> img);
+    void setScalarImg(vtkSmartPointer<vtkImageData> img);
+    void setScalarThreshold(double threshold) { this->scalar_threshold = threshold; };
     void setMesh(Mesh *mesh_data);
     double computeVertexGrad(Vector3f &v, Vector3f &grad);
     double trilinearInterpolation(double d[3], double corner_vals[2][2][2]);
@@ -45,9 +39,28 @@ public:
     void computePPrimeNormal();
     void computeInflateDir(VectorXf &p_vec, VectorXf &g_vec);
     void inflateOptStep();
+    void computeBoundCrsp(VectorXf &p_vec, VectorXf &g_vec);
+    int buildBoundCrsp(std::vector<int> &v_ids, MatrixX3f &bound_crsp, std::vector<double> &bound_crsp_w);
+    bool searchBound(int v_id, Vector3f &v_crsp, bool out = true);
+    void refineOptStep();
+
+    int buildBoundCrsp2(MatrixX3f &bound_crsp, SparseMatrix<float>& L_cur);
+    void refineOptStep2();
+    bool searchBound(int v_id, float v_crsp[3], double& bound_dist, double bound_thresh);
 
     void buildKDTree(std::vector<double> &T_Pts);
+    std::vector<double>& getTreeNormal() { return tree_normal_target; };
     void optStepNRICP();
+    std::vector<double>& getCrspLines() { return crsp_lines; };
+    void setVisCrspLines(bool state) { vis_crsp_lines = state; };
+
+    // submesh registration
+    void setSubMesh(std::map<vtkIdType, int>& regionMap, std::vector<int>& regionBound);
+    void refineSubMesh(std::vector<double>& centerPos);
+    int buildSubBoundCrsp(Matrix3Xf &bound_crsp, SparseMatrix<float>& L_cur);
+    void update_SubRi();
+    void setSubdvec(Matrix3Xf& d_sub);
+    void setLocalSmoothMode(int state) { local_smooth_mode = state; };
 
 protected:
     MatrixX3f d_cur;
@@ -57,6 +70,8 @@ protected:
     std::vector<int> user_v_ids;
     vtkSmartPointer<vtkImageData> dist_map;
     vtkSmartPointer<vtkImageData> dist_gradient;
+    vtkSmartPointer<vtkImageData> scalar_img;
+    double scalar_threshold;
     std::vector<double> temp_mesh_vec;
 
     double lamd_arap;
@@ -65,11 +80,28 @@ protected:
     double lamd_inflate;
     double lamd_dist;
     int grad_max_iter;
+    bool vis_crsp_lines;
+    bool has_dist_map;
+    bool has_mesh;
+    bool has_scalar_img;
 
     Mesh *mesh_data;
 
     kdtree::KDTree *tree_target;
     kdtree::KDTreeArray tree_data_target;
+    std::vector<double> tree_normal_target;
+    std::vector<double> crsp_lines;
+
+    Eigen::SimplicialCholesky<Eigen::SparseMatrix<float>> cholSubMesh;
+    SparseMatrix<float> L_Submesh;
+    SparseMatrix<float> L_SubmeshAux;
+    std::map<vtkIdType, int> regionMap;
+    std::vector<int> NewPtOrder;
+    std::vector<int> OldToNewPtOrder;
+    int NewPtNum;
+    int NewCenterNum;
+    std::vector<int> RUpdateList;
+    bool local_smooth_mode;
 };
 
 #endif

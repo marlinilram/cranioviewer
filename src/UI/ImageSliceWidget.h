@@ -18,6 +18,7 @@ public:
 
     void setSlider(QSlider *slider);
     void setSlice(vtkSmartPointer<vtkImageData> img_data, std::string orient, vtkSmartPointer<vtkRenderer> plane_renderer);
+    void addSlice(vtkSmartPointer<vtkImageData> img_data);
     void setMesh(Mesh *mesh);
     void setIntersector(Mesh *mesh);
     void clearSlice();
@@ -29,7 +30,11 @@ public:
 public slots:
     void updatePlaneView(int value);
     void setSliceColorWin(double win);
+    void setSliceColorWin(int win) { setSliceColorWin(static_cast<double>(win)); };
     void setSliceColorLev(double lev);
+    void setSliceColorLev(int lev) { setSliceColorLev(static_cast<double>(lev)); };
+    void setIntersectionThick(int value);
+    void toggleImgDisp();
 
 signals:
     void updateRenderers();

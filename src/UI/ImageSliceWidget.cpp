@@ -38,6 +38,11 @@ void ImageSliceWidget::setSlice(vtkSmartPointer<vtkImageData> img_data, std::str
     image_slice = new ImageSlice(img_data, orient, plane_renderer, true);
 }
 
+void ImageSliceWidget::addSlice(vtkSmartPointer<vtkImageData> img_data)
+{
+  image_slice->addImgData(img_data);
+}
+
 void ImageSliceWidget::setMesh(Mesh *mesh)
 {
     if (!intersector)
@@ -84,15 +89,45 @@ void ImageSliceWidget::clearIntersector()
 
 void ImageSliceWidget::setSliceColorWin(double win)
 {
+  if (image_slice)
+  {
     image_slice->setImgColorWin(win);
+    emit(updateRenderers());
+  }
 }
 
 void ImageSliceWidget::setSliceColorLev(double lev)
 {
+  if (image_slice)
+  {
     image_slice->setImgColorLev(lev);
+    emit(updateRenderers());
+  }
 }
 
 void ImageSliceWidget::setSliceLUT(double range[2])
 {
     image_slice->setImgColorLUT(range);
+}
+
+void ImageSliceWidget::setIntersectionThick(int value)
+{
+  if (intersector)
+  {
+    intersector->setThickness(value);
+    emit(updateRenderers());
+  }
+}
+
+void ImageSliceWidget::toggleImgDisp()
+{
+  if (image_slice)
+  {
+    image_slice->togImgDisp();
+  }
+  if (intersector)
+  {
+    intersector->setCutter();
+  }
+  emit(updateRenderers());
 }

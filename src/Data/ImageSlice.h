@@ -31,22 +31,26 @@ public:
     void setImgColorLUT(double range[2]);
     double getPixelVal(double x, double y);
     vtkSmartPointer<vtkRenderer> getRenderer() { return renderer; };
-    vtkSmartPointer<vtkImageSliceMapper> getSliceMapper() { return mapper; };
+    vtkSmartPointer<vtkImageSliceMapper> getSliceMapper() { return mappers[cur_image]; };
+    void addImgData(vtkSmartPointer<vtkImageData> data);
+    void togImgDisp();
+    void setVisible(int state);
 
 private:
     void setImgData(vtkSmartPointer<vtkImageData> data);
     void setOrient(std::string orient);
 
 private:
-    vtkSmartPointer<vtkImageData> nii_data;
+    std::vector<vtkSmartPointer<vtkImageData>> images_data;
 
-    vtkSmartPointer<vtkImageSliceMapper> mapper;
-    vtkSmartPointer<vtkImageSlice> actor;
+    std::vector<vtkSmartPointer<vtkImageSliceMapper>> mappers;
+    std::vector<vtkSmartPointer<vtkImageSlice>> actors;
     vtkSmartPointer<vtkRenderer> renderer;
 
     int max_slice_num;
     std::string img_orient;
     bool parallel_on;
+    int cur_image;
 };
 
 #endif
