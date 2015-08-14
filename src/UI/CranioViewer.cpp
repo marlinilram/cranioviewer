@@ -39,6 +39,7 @@ CranioViewer::CranioViewer()
     connect( m_PushButtonICP, SIGNAL( clicked() ), this, SLOT( runICP() ) );
     connect( pushButtonInflateIter, SIGNAL( clicked() ), this, SLOT( inflateIter() ) );
     connect( m_PushButtonNonRigidInit, SIGNAL( clicked() ), this, SLOT( loadOutDistMap() ) );
+    connect( m_PushButtonClrCrspLn, SIGNAL( clicked() ), this, SLOT( clearCrspLn() ) );
 
     setSliceUIWidget();
     setTransUIWidget();
@@ -545,6 +546,13 @@ void CranioViewer::inflateIter()
         else non_rigid->clearCrspLines();
         updateRenderers();
     }
+}
+
+void CranioViewer::clearCrspLn()
+{
+  non_rigid->getNonRigid()->setVisCrspLines(m_CheckBoxVisCrsp->isChecked());
+  non_rigid->clearCrspLines();
+  updateRenderers();
 }
 
 void CranioViewer::computeDistMap()

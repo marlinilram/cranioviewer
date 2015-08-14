@@ -306,7 +306,10 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_15" stretch="1,1">
+         <layout class="QHBoxLayout" name="horizontalLayout_15" stretch="1,1,0">
+          <property name="spacing">
+           <number>1</number>
+          </property>
           <item>
            <widget class="QCheckBox" name="m_CheckBoxLocalSmooth">
             <property name="text">
@@ -318,6 +321,13 @@
            <widget class="QCheckBox" name="m_CheckBoxVisCrsp">
             <property name="text">
              <string>Show Crsp</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="m_PushButtonClrCrspLn">
+            <property name="text">
+             <string>Clear</string>
             </property>
            </widget>
           </item>

@@ -53,6 +53,7 @@ public:
     void optStepNRICP();
     std::vector<double>& getCrspLines() { return crsp_lines; };
     void setVisCrspLines(bool state) { vis_crsp_lines = state; };
+    bool getVisCrspLines() { return this->vis_crsp_lines; };
 
     // submesh registration
     void setSubMesh(std::map<vtkIdType, int>& regionMap, std::vector<int>& regionBound);

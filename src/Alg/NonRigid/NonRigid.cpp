@@ -462,7 +462,7 @@ void NonRigid::computePPrimeNormal()
   Eigen::Vector3f cur_f_normal;
   size_t P_Num = adj_list.size();
 
-  P_Prime_N.setOnes();
+  P_Prime_N.setZero();
 
   for (size_t i = 0; i < face_list_ori.size(); ++i)
   {
@@ -1047,6 +1047,19 @@ void NonRigid::refineOptStep2()
     L_cur.coeffRef(user_v_ids[i] + P_Num, user_v_ids[i] + P_Num) += lamd_userCrsp;
     L_cur.coeffRef(user_v_ids[i] + 2 * P_Num, user_v_ids[i] + 2 * P_Num) += lamd_userCrsp;
   }
+
+  // dif from last shape
+  //for (int i = 0; i < P_Num; ++i)
+  //{
+  //  L_cur.coeffRef(i, i) += lamd_arap / 3;
+  //  L_cur.coeffRef(i + P_Num, i + P_Num) += lamd_arap / 3;
+  //  L_cur.coeffRef(i + 2 * P_Num, i + 2 * P_Num) += lamd_arap / 3;
+  //}
+  //VectorXf P_Prime_last_vec(3*P_Num);
+  //P_Prime_last_vec.segment(0, P_Num) = P_Prime.row(0);
+  //P_Prime_last_vec.segment(0+P_Num, P_Num) = P_Prime.row(1);
+  //P_Prime_last_vec.segment(0+2*P_Num, P_Num) = P_Prime.row(2);
+
   std::clock_t end = std::clock();
   double updateL = double(end-begin)/CLOCKS_PER_SEC;
 
@@ -1065,7 +1078,8 @@ void NonRigid::refineOptStep2()
     P_Prime_vec = chol.solve(
       lamd_arap * VectorXf::Map(d_cur.data(), d_cur.cols()*d_cur.rows())
       + lamd_arap * VectorXf::Map(bound_crsp.data(), bound_crsp.cols()*bound_crsp.rows())
-      + lamd_userCrsp * VectorXf::Map(user_crsp.data(), user_crsp.cols()*user_crsp.rows()));
+      + lamd_userCrsp * VectorXf::Map(user_crsp.data(), user_crsp.cols()*user_crsp.rows())
+      );//+ lamd_arap / 3 * P_Prime_last_vec);
 
     P_Prime.row(0) = P_Prime_vec.segment(0, P_Num);
     P_Prime.row(1) = P_Prime_vec.segment(0+P_Num, P_Num);
@@ -1195,6 +1209,15 @@ void NonRigid::refineSubMesh(std::vector<double>& centerPos)
       user_crsp_sub.col(NewPtIdx) = user_crsp.row(user_v_ids[i]).transpose();
     }
   }
+
+  // dif from last shape
+  for (int i = 0; i < NewPtNum; ++i)
+  {
+    L_cur.coeffRef(3*i + 0, 3*i + 0) += lamd_arap / 3;
+    L_cur.coeffRef(3*i + 1, 3*i + 1) += lamd_arap / 3;
+    L_cur.coeffRef(3*i + 2, 3*i + 2) += lamd_arap / 3;
+  }
+
   std::clock_t end = std::clock();
   double updateL = double(end-begin)/CLOCKS_PER_SEC;
 
@@ -1223,6 +1246,9 @@ void NonRigid::refineSubMesh(std::vector<double>& centerPos)
   Matrix3Xf d_cur_sub(3, NewPtNum);
   VectorXf aux_submesh = L_SubmeshAux * P_Prime_vec_full.segment(3*NewPtNum, 3*(NewPtOrder.size()-NewPtNum));
 
+  // dif from last shape
+  VectorXf P_Prime_last_vec = P_Prime_vec_full.segment(0, 3*NewPtNum);
+
   for (size_t i = 0; i < grad_max_iter; ++i)
   {
     update_SubRi();
@@ -1232,7 +1258,8 @@ void NonRigid::refineSubMesh(std::vector<double>& centerPos)
       lamd_arap * (VectorXf::Map(d_cur_sub.data(), d_cur_sub.cols()*d_cur_sub.rows())
       - aux_submesh)
       + lamd_arap * VectorXf::Map(bound_crsp.data(), bound_crsp.cols()*bound_crsp.rows())
-      + lamd_userCrsp * VectorXf::Map(user_crsp_sub.data(), user_crsp_sub.cols()*user_crsp_sub.rows()));
+      + lamd_userCrsp * VectorXf::Map(user_crsp_sub.data(), user_crsp_sub.cols()*user_crsp_sub.rows())
+      + lamd_arap / 3 * P_Prime_last_vec);
 
     P_Prime_vec_full.segment(0, 3*NewPtNum) = P_Prime_vec;
 

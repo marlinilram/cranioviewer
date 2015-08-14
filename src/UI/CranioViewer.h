@@ -49,6 +49,7 @@ private slots:
     void resetTrans();
     void nonRigidIter();
     void inflateIter();
+    void clearCrspLn();
     void loadOutDistMap();
     void saveMesh();
     void saveImg();

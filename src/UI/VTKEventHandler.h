@@ -14,6 +14,7 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRendererCollection.h>
+#include <vtkAxesActor.h>
 
 #include "ImageSliceWidget.h"
 #include "MainViewer.h"
@@ -66,7 +67,11 @@ private:
     bool select_mode;
     bool regionMove_mode;
     std::vector<double> centerPos;
+    int centerTransformPtId;
+    std::vector<int> centerPtIds;
+    std::vector<double> centerOldPos;
     NonRigidWrapper* nonRigid;
+    vtkSmartPointer<vtkAxesActor> centerTrackball;
 };
 
 #endif

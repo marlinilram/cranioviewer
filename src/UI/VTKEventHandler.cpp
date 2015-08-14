@@ -3,8 +3,10 @@
 #include <vtkInteractorStyleDrawPolygon.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkInteractorStyleRubberBand3D.h>
+#include <vtkTransform.h>
 #include "SelectModeStyle.h"
 #include "RegionMoveStyle.h"
+#include "FullRegionMoveStyle.h"
 
 VTKEventHandler::VTKEventHandler()
 {
@@ -30,6 +32,9 @@ VTKEventHandler::VTKEventHandler()
 
     select_mode = false;
     regionMove_mode = false;
+
+    centerTrackball = vtkSmartPointer<vtkAxesActor>::New();
+    centerTrackball->SetTotalLength(10,10,10);
 }
 
 VTKEventHandler::~VTKEventHandler()
@@ -203,7 +208,9 @@ void VTKEventHandler::selectMode()
 {
   if (select_mode)
   {
-    qvtk_widgets[0]->GetRenderWindow()->GetInteractor()->SetInteractorStyle(vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New());
+    qvtk_widgets[0]->GetRenderWindow()->GetInteractor()->SetInteractorStyle(vtkSmartPointer<vtkInteractorStyleDrawPolygon>::New());
+
+    main_viewer->getRenderer()->RemoveActor(centerTrackball);
 
     event_connector->Disconnect(qvtk_widgets[0]->GetRenderWindow()->GetInteractor(), vtkCommand::StartInteractionEvent, this, SLOT(getSelectCenter(vtkObject *)));
     event_connector->Disconnect(qvtk_widgets[0]->GetRenderWindow()->GetInteractor(), vtkCommand::MouseMoveEvent, this, SLOT(getSelectRad(vtkObject *)));
@@ -216,7 +223,7 @@ void VTKEventHandler::selectMode()
 
     main_viewer->getMeshData()->getActor()->GetMapper()->SetScalarModeToUseCellData();
 
-    event_connector->Disconnect(qvtk_widgets[0]->GetRenderWindow()->GetInteractor(), vtkCommand::StartInteractionEvent, this, SLOT(initRegionMoveMode(vtkObject *)));
+    //event_connector->Disconnect(qvtk_widgets[0]->GetRenderWindow()->GetInteractor(), vtkCommand::StartInteractionEvent, this, SLOT(initRegionMoveMode(vtkObject *)));
     event_connector->Disconnect(qvtk_widgets[0]->GetRenderWindow()->GetInteractor(), vtkCommand::MouseMoveEvent, this, SLOT(regionMoveCall(vtkObject *)));
 
     event_connector->Connect(qvtk_widgets[0]->GetRenderWindow()->GetInteractor(), vtkCommand::StartInteractionEvent, this, SLOT(getSelectCenter(vtkObject *)));
@@ -242,6 +249,16 @@ void VTKEventHandler::getSelectCenter(vtkObject *obj)
     main_viewer->getMeshData()->setKDTreeLocator();
 
     selectModeStyle->SetStartPtId(main_viewer->getMeshData()->pickVertex(startPos[0], startPos[1]));
+
+    centerTransformPtId = selectModeStyle->GetStartPtId();
+    double selectCenter[3];
+    main_viewer->getMeshData()->getMeshData()->GetPoint(selectModeStyle->GetStartPtId(), selectCenter);
+    vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+    transform->Translate(selectCenter);
+    centerTrackball->SetUserTransform(transform);
+    main_viewer->getRenderer()->RemoveActor(centerTrackball);
+    main_viewer->getRenderer()->AddActor(centerTrackball);
+    std::cout<<"Selected Center Pos: "<<selectCenter[0]<<" "<<selectCenter[1]<<" "<<selectCenter[2]<<"\n";
 
     emit(main_viewer->updateRenderers());
   }
@@ -289,7 +306,10 @@ void VTKEventHandler::regionMoveMode()
 {
   if (!regionMove_mode)
   {
-    qvtk_widgets[0]->GetRenderWindow()->GetInteractor()->SetInteractorStyle(vtkSmartPointer<RegionMoveStyle>::New());
+    qvtk_widgets[0]->GetRenderWindow()->GetInteractor()->SetInteractorStyle(vtkSmartPointer<FullRegionMoveStyle>::New());
+
+    FullRegionMoveStyle* fullRegionMove = FullRegionMoveStyle::SafeDownCast(
+      qvtk_widgets[0]->GetRenderWindow()->GetInteractor()->GetInteractorStyle());
 
     event_connector->Disconnect(qvtk_widgets[0]->GetRenderWindow()->GetInteractor(), vtkCommand::StartInteractionEvent, this, SLOT(getSelectCenter(vtkObject *)));
     event_connector->Disconnect(qvtk_widgets[0]->GetRenderWindow()->GetInteractor(), vtkCommand::MouseMoveEvent, this, SLOT(getSelectRad(vtkObject *)));
@@ -298,7 +318,41 @@ void VTKEventHandler::regionMoveMode()
       main_viewer->getMeshData()->getMarkRegion(), 
       main_viewer->getMeshData()->getMarkRegionBound());
 
-    event_connector->Connect(qvtk_widgets[0]->GetRenderWindow()->GetInteractor(), vtkCommand::StartInteractionEvent, this, SLOT(initRegionMoveMode(vtkObject *)));
+    // initialize group of center vertices, cache them for transform
+    centerOldPos.clear();
+    centerPtIds.clear();
+    centerPtIds.push_back(centerTransformPtId);
+    Mesh* mesh = main_viewer->getMeshData();
+    std::map<vtkIdType, int>& markRegion = mesh->getMarkRegion();
+    std::map<vtkIdType, int>::iterator it_markRegion;
+    double tempPt[3];
+    for (it_markRegion = markRegion.begin(); it_markRegion != markRegion.end(); ++it_markRegion)
+    {
+      if (it_markRegion->second != 0 && it_markRegion->second < 1)
+      {
+        centerPtIds.push_back(it_markRegion->first);
+      }
+    }
+    // transform center stores at the first place
+    for (int i = 0; i < centerPtIds.size(); ++i)
+    {
+      mesh->getMeshData()->GetPoint(centerPtIds[i], tempPt);
+      centerOldPos.push_back(tempPt[0]);
+      centerOldPos.push_back(tempPt[1]);
+      centerOldPos.push_back(tempPt[2]);
+    }
+
+    main_viewer->getRenderer()->RemoveActor(centerTrackball);
+    vtkTransform* centerTrackballTransform = vtkTransform::SafeDownCast(centerTrackball->GetUserTransform());
+    centerTrackballTransform->Identity();
+    centerTrackballTransform->Translate(
+      centerOldPos[0],
+      centerOldPos[1],
+      centerOldPos[2]);
+    main_viewer->getRenderer()->AddActor(centerTrackball);
+    fullRegionMove->SetInteractionProp(centerTrackball);
+
+    //event_connector->Connect(qvtk_widgets[0]->GetRenderWindow()->GetInteractor(), vtkCommand::StartInteractionEvent, this, SLOT(initRegionMoveMode(vtkObject *)));
     event_connector->Connect(qvtk_widgets[0]->GetRenderWindow()->GetInteractor(), vtkCommand::MouseMoveEvent, this, SLOT(regionMoveCall(vtkObject *)));
 
     select_mode = false;
@@ -308,7 +362,9 @@ void VTKEventHandler::regionMoveMode()
   {
     qvtk_widgets[0]->GetRenderWindow()->GetInteractor()->SetInteractorStyle(vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New());
 
-    event_connector->Disconnect(qvtk_widgets[0]->GetRenderWindow()->GetInteractor(), vtkCommand::StartInteractionEvent, this, SLOT(initRegionMoveMode(vtkObject *)));
+    main_viewer->getRenderer()->RemoveActor(centerTrackball);
+
+    //event_connector->Disconnect(qvtk_widgets[0]->GetRenderWindow()->GetInteractor(), vtkCommand::StartInteractionEvent, this, SLOT(initRegionMoveMode(vtkObject *)));
     event_connector->Disconnect(qvtk_widgets[0]->GetRenderWindow()->GetInteractor(), vtkCommand::MouseMoveEvent, this, SLOT(regionMoveCall(vtkObject *)));
 
 
@@ -318,66 +374,61 @@ void VTKEventHandler::regionMoveMode()
 
 void VTKEventHandler::initRegionMoveMode(vtkObject *obj)
 {
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::SafeDownCast(obj);
-  RegionMoveStyle* regionMoveStyle = RegionMoveStyle::SafeDownCast(iren->GetInteractorStyle());
+  //vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::SafeDownCast(obj);
+  //RegionMoveStyle* regionMoveStyle = RegionMoveStyle::SafeDownCast(iren->GetInteractorStyle());
 
-  std::map<vtkIdType, int>& markRegion = main_viewer->getMeshData()->getMarkRegion();
-  std::map<vtkIdType, int>::iterator it_markRegion;
-  vtkIdType ptId = 0;
-  for (it_markRegion = markRegion.begin(); it_markRegion != markRegion.end(); ++it_markRegion)
-  {
-    if (it_markRegion->second == 0)
-    {
-      ptId = it_markRegion->first;
-      break;
-    }
-  }
-  double StartWPosition[3];
-  main_viewer->getMeshData()->getMeshData()->GetPoint(ptId, StartWPosition);
+  //std::map<vtkIdType, int>& markRegion = main_viewer->getMeshData()->getMarkRegion();
+  //std::map<vtkIdType, int>::iterator it_markRegion;
+  //vtkIdType ptId = 0;
+  //for (it_markRegion = markRegion.begin(); it_markRegion != markRegion.end(); ++it_markRegion)
+  //{
+  //  if (it_markRegion->second == 0)
+  //  {
+  //    ptId = it_markRegion->first;
+  //    break;
+  //  }
+  //}
+  //double StartWPosition[3];
+  //main_viewer->getMeshData()->getMeshData()->GetPoint(ptId, StartWPosition);
 
-  std::cout<<"center pt: "<<ptId<<"\n";
+  //std::cout<<"center pt: "<<ptId<<"\n";
 
-  regionMoveStyle->SetStartWPosition(StartWPosition);
+  //regionMoveStyle->SetStartWPosition(StartWPosition);
 }
 
 void VTKEventHandler::regionMoveCall(vtkObject *obj)
 {
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::SafeDownCast(obj);
-  RegionMoveStyle* regionMoveStyle = RegionMoveStyle::SafeDownCast(iren->GetInteractorStyle());
+  FullRegionMoveStyle* fullRegionMoveStyle = FullRegionMoveStyle::SafeDownCast(iren->GetInteractorStyle());
 
-  if (!regionMoveStyle->GetMovingTag())
+  if (!fullRegionMoveStyle->GetEventState())
   {
     return;
   }
 
+  std::cout<<"test\n";
+
   Mesh* mesh = main_viewer->getMeshData();
-  std::map<vtkIdType, int>& markRegion = mesh->getMarkRegion();
-  std::map<vtkIdType, int>::iterator it_markRegion;
   double tempPt[3];
-  double* lastMotionVec = regionMoveStyle->GetLastMotionVec();
-  double* curMotionVec = regionMoveStyle->GetMotionVec();
-
-  // 
-  centerPos.clear();
-  for (it_markRegion = markRegion.begin(); it_markRegion != markRegion.end(); ++it_markRegion)
+  centerPos.resize(centerOldPos.size());
+  for (int i = 0; i < centerPtIds.size(); ++i)
   {
-    if (it_markRegion->second == 0)
-    {
-      mesh->getMeshData()->GetPoint(it_markRegion->first, tempPt);
-      tempPt[0] = tempPt[0] - lastMotionVec[0] + curMotionVec[0];
-      tempPt[1] = tempPt[1] - lastMotionVec[1] + curMotionVec[1];
-      tempPt[2] = tempPt[2] - lastMotionVec[2] + curMotionVec[2];
-      centerPos.push_back(tempPt[0]);
-      centerPos.push_back(tempPt[1]);
-      centerPos.push_back(tempPt[2]);
-    }
+    tempPt[0] = centerOldPos[3*i + 0] - centerOldPos[0];
+    tempPt[1] = centerOldPos[3*i + 1] - centerOldPos[1];
+    tempPt[2] = centerOldPos[3*i + 2] - centerOldPos[2];
+    centerTrackball->GetUserTransform()->TransformPoint(tempPt, &centerPos[3*i + 0]);
+    //mesh->getMeshData()->GetPoints()->SetPoint(
+    //  centerPtIds[i],
+    //  &centerPos[3*i + 0]
+    //  );
   }
-
-  lastMotionVec[0] = curMotionVec[0];
-  lastMotionVec[1] = curMotionVec[1];
-  lastMotionVec[2] = curMotionVec[2];
+  //mesh->getMeshData()->GetPoints()->Modified();
 
   nonRigid->getNonRigid()->refineSubMesh(centerPos);
+  if (nonRigid->getNonRigid()->getVisCrspLines())
+  {
+    nonRigid->drawCrspLines();
+  }
 
   emit(main_viewer->updateRenderers());
 }

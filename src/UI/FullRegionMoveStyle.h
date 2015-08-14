@@ -29,10 +29,22 @@ public:
   void Pan();
   void Dolly();
   void UniformScale();
-  
+
+  void SetInteractionProp(vtkProp3D* InteractionProp);
+
+  int GetEventState();
+
 protected:
   FullRegionMoveStyle();
   ~FullRegionMoveStyle();
+
+  void FindPickedActor(int x, int y);
+
+  void Prop3DTransform(vtkProp3D *prop3D,
+    double *boxCenter,
+    int NumRotation,
+    double **rotate,
+    double *scale);
 
 private:
   FullRegionMoveStyle(const FullRegionMoveStyle&);
