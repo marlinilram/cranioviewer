@@ -1,8 +1,7 @@
 CMAKE_MINIMUM_REQUIRED( VERSION 2.8 )
 PROJECT( CranioViewer )
 
-SET( CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.2.1\\5.2.1\\msvc2012_64_opengl" 
-						"C:\\Program Files (x86)\\Windows Kits\\8.0\\Lib\\win8\\um\\x64" )
+SET( CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.5.1\\5.5\\msvc2013_64" )
 
 
 # QT FILES						
@@ -18,8 +17,8 @@ SET( vtk_lib_renew ${VTK_LIBRARIES} )
 #SET( vtk_use_renew ${VTK_USE_FILE} )
 
 # ITK FILES
-FIND_PACKAGE( ITK REQUIRED )
-INCLUDE( ${ITK_USE_FILE} )
+#FIND_PACKAGE( ITK REQUIRED )
+#INCLUDE( ${ITK_USE_FILE} )
 
 # BOOST FILES
 FIND_PATH( BOOST_DIR "boost" )
@@ -97,7 +96,7 @@ TARGET_LINK_LIBRARIES( ${PROJECT_NAME}
 					   #${OPENGL_LIBRARIES}
 					   #${OpenCV_LIBS}
 					   #${GLEW_LIBRARIES}
-					   ${ITK_LIBRARIES}
+					   #${ITK_LIBRARIES}
 					   ${vtk_lib_renew}
 					   #debug ${QGLViewer_lib_debug} 
 					   #optimized ${QGLViewer_lib_release} 
@@ -118,7 +117,7 @@ SOURCE_GROUP( "Alg\\ICP" 		FILES ${Alg_ICP} )
 SOURCE_GROUP( "Alg\\NonRigid" 	FILES ${Alg_NonRigid} )
 SOURCE_GROUP( "Alg\\Morphing" 	FILES ${Alg_Morphing} )
 
-MESSAGE( STATUS "${ITK_LIBRARIES}" )
+#MESSAGE( STATUS "${ITK_LIBRARIES}" )
 MESSAGE( STATUS "${VTK_LIBRARIES}" )
 MESSAGE( STATUS "${vtk_lib_renew}" )
 MESSAGE( STATUS "${VTK_INCLUDE_DIRECTORIES}" )

@@ -21,7 +21,7 @@
 #include "DistMapConfigDialog.h"
 
 #include "ICPWrapper.h"
-#include "ComputeDistMap.h"
+//#include "ComputeDistMap.h"
 #include "NonRigidWrapper.h"
 
 #include "VTKEventHandler.h"

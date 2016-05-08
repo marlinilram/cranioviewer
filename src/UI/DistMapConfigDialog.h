@@ -2,7 +2,7 @@
 #define DistMapConfigDialog_H
 
 #include <QDialog>
-#include "ui_DistMapConfig.h"
+#include "ui_DistMapConfigDialog.h"
 
 class DistMapConfigDialog : public QDialog, public Ui::DistMapConfigDialog
 {

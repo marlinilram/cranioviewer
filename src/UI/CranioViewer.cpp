@@ -334,7 +334,7 @@ void CranioViewer::runICP()
 
 void CranioViewer::testITK()
 {
-    dist_map_config->show();
+    //dist_map_config->show();
 
     //non_rigid->getNonRigid()->setDistMap(distmap.getDistMap());
     //non_rigid->getNonRigid()->setMesh(main_viewer->getMeshData());
@@ -557,52 +557,52 @@ void CranioViewer::clearCrspLn()
 
 void CranioViewer::computeDistMap()
 {
-    ComputeDistMap distmap;
-    distmap.setVTKImg(main_viewer->getImgData()->getData(), main_viewer->getVolumeData()->getISOVal(), main_viewer->getVolumeData()->getISOWidth());
-    distmap.setStopCriterion(dist_map_config->doubleSpinBoxFMStopVal->value());
+    //ComputeDistMap distmap;
+    //distmap.setVTKImg(main_viewer->getImgData()->getData(), main_viewer->getVolumeData()->getISOVal(), main_viewer->getVolumeData()->getISOWidth());
+    //distmap.setStopCriterion(dist_map_config->doubleSpinBoxFMStopVal->value());
 
-    if(dist_map_config->checkBoxUseGaus->isChecked())
-        distmap.gaussianSmooth(main_viewer->getImgData()->getData());
-    else
-        distmap.computeFinalDistMap();
+    //if(dist_map_config->checkBoxUseGaus->isChecked())
+    //    distmap.gaussianSmooth(main_viewer->getImgData()->getData());
+    //else
+    //    distmap.computeFinalDistMap();
 
-    vtkSmartPointer<vtkImageGradientMagnitude> nii_gm = vtkSmartPointer<vtkImageGradientMagnitude>::New();
-    
+    //vtkSmartPointer<vtkImageGradientMagnitude> nii_gm = vtkSmartPointer<vtkImageGradientMagnitude>::New();
+    //
 
 
-    main_viewer->clearImage();
-    for (size_t i = 0; i < 3; ++i)
-    {
-        image_slice_widgets[i]->clearSlice();
-        image_slice_widgets[i]->clearIntersector();
-    }
-    // reinit
-    initVTKWin();
-    main_viewer->setRenderer(m_3DViewerRenderer);
-    main_viewer->setImgData(distmap.getDistMap());
+    //main_viewer->clearImage();
+    //for (size_t i = 0; i < 3; ++i)
+    //{
+    //    image_slice_widgets[i]->clearSlice();
+    //    image_slice_widgets[i]->clearIntersector();
+    //}
+    //// reinit
+    //initVTKWin();
+    //main_viewer->setRenderer(m_3DViewerRenderer);
+    //main_viewer->setImgData(distmap.getDistMap());
 
-    std::string orients[3] = {"YZ", "XZ", "XY"};
-    vtkSmartPointer<vtkRenderer> plane_renderers[3]=
-    {m_YZViewerRenderer, m_XZViewerRenderer, m_XYViewerRenderer};
-    for (size_t i = 0; i < 3; ++i)
-    {
-        image_slice_widgets[i]->setSlice(distmap.getDistMap(), orients[i], plane_renderers[i]);
-        image_slice_widgets[i]->setSliceColorWin(10.0);
-        image_slice_widgets[i]->setSliceColorLev(0.0);
-    }
+    //std::string orients[3] = {"YZ", "XZ", "XY"};
+    //vtkSmartPointer<vtkRenderer> plane_renderers[3]=
+    //{m_YZViewerRenderer, m_XZViewerRenderer, m_XYViewerRenderer};
+    //for (size_t i = 0; i < 3; ++i)
+    //{
+    //    image_slice_widgets[i]->setSlice(distmap.getDistMap(), orients[i], plane_renderers[i]);
+    //    image_slice_widgets[i]->setSliceColorWin(10.0);
+    //    image_slice_widgets[i]->setSliceColorLev(0.0);
+    //}
 
-    if (main_viewer->getMeshData())
-    {
-        for (size_t i = 0; i < 3; ++i)
-        {
-            image_slice_widgets[i]->setMesh(main_viewer->getMeshData());
-        }
-        main_viewer->getMeshData()->setRenderer(m_3DViewerRenderer);
-    }
+    //if (main_viewer->getMeshData())
+    //{
+    //    for (size_t i = 0; i < 3; ++i)
+    //    {
+    //        image_slice_widgets[i]->setMesh(main_viewer->getMeshData());
+    //    }
+    //    main_viewer->getMeshData()->setRenderer(m_3DViewerRenderer);
+    //}
 
-    updateRenderers();
+    //updateRenderers();
 
-    non_rigid->getNonRigid()->setDistMap(distmap.getDistMap());
-    if (main_viewer->getMeshData())
-      non_rigid->getNonRigid()->setMesh(main_viewer->getMeshData());
+    //non_rigid->getNonRigid()->setDistMap(distmap.getDistMap());
+    //if (main_viewer->getMeshData())
+    //  non_rigid->getNonRigid()->setMesh(main_viewer->getMeshData());
 }

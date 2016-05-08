@@ -208,7 +208,7 @@ void VTKEventHandler::selectMode()
 {
   if (select_mode)
   {
-    qvtk_widgets[0]->GetRenderWindow()->GetInteractor()->SetInteractorStyle(vtkSmartPointer<vtkInteractorStyleDrawPolygon>::New());
+    qvtk_widgets[0]->GetRenderWindow()->GetInteractor()->SetInteractorStyle(vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New());
 
     main_viewer->getRenderer()->RemoveActor(centerTrackball);
 
