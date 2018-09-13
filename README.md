@@ -1,5 +1,7 @@
 # CranioViewer
 
+## _A Simple Interactive Registration Method for 3D Volumetric Medical Image_ (Journal of Computer-Aided Design & Computer Graphics 2017)
+
 ## This program integrated several functionalities:
 1. Polygonal mesh view in Wavefront Obj file format
 2. 3D CT data inspection in Nifti file format with 3 axis slice view and a 3D view
