@@ -11,7 +11,9 @@
 
 !!!New!!! Video illustrating the current system.
 <br>
-<iframe src="https://onedrive.live.com/embed?cid=BB4C7CD95F9718BE&resid=BB4C7CD95F9718BE%21111000&authkey=AKPtH2DihqQ_HQg" width="320" height="189" frameborder="0" scrolling="no" allowfullscreen></iframe>
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=P7ZnMbBMFgU" target="_blank">
+<img src="http://img.youtube.com/vi/P7ZnMbBMFgU/0.jpg" alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" />
+</a>
 
 GUI for Main Window
 ![alt text](https://github.com/marlinilram/cranioviewer/raw/master/imgs/mainWin.png "Main Window")
